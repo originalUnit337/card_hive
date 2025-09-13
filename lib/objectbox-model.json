@@ -1,0 +1,66 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:62870931500109938",
+      "lastPropertyId": "7:731865282394944071",
+      "name": "CardModel",
+      "properties": [
+        {
+          "id": "1:1956935281347475812",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2285761289274129723",
+          "name": "name",
+          "indexId": "1:5858192251813911495",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "3:4120578690252093592",
+          "name": "label",
+          "type": 9
+        },
+        {
+          "id": "4:506706184309228241",
+          "name": "number",
+          "indexId": "2:260010285660874372",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "5:2982909568387265885",
+          "name": "logoPath",
+          "type": 9
+        },
+        {
+          "id": "6:7894219148846441729",
+          "name": "note",
+          "type": 9
+        },
+        {
+          "id": "7:731865282394944071",
+          "name": "colorValue",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:62870931500109938",
+  "lastIndexId": "2:260010285660874372",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
