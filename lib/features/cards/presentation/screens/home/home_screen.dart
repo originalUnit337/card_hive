@@ -1,5 +1,7 @@
 import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
+import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -70,7 +72,9 @@ class HomeScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = items[index];
               return InkWell(
-                onTap: () {},
+                onTap: () {
+                  context.push(AppRoutes.cardInfo.path);
+                },
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
