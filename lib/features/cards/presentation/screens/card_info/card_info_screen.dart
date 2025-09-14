@@ -1,5 +1,7 @@
 import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
+import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -44,7 +46,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(15.0),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -83,6 +85,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            onTap: () => context.push(AppRoutes.cardInfoPictures.path),
           ),
           ListTile(
             leading: Icon(Icons.notes),
@@ -93,6 +96,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            onTap: () => context.push(AppRoutes.cardInfoNotes.path),
           ),
         ],
       ),
