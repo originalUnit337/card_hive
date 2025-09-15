@@ -65,7 +65,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                     // ? logo here if exist
                     child: Center(child: Text('CopyBook')),
                   ),
-                  Image.asset('assets/bar_codes/image.png'),
+                  Image.asset('assets/bar_codes/test_image.png'),
                   Center(
                     child: Text(
                       '4 810 431 021 569',
