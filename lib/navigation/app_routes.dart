@@ -2,7 +2,8 @@ enum AppRoutes {
   homeRoute(path: '/', name: 'home'),
   cardInfo(path: '/card_info', name: 'cardInfo'),
   cardInfoNotes(path: '/card_info/notes', name: 'cardInfoNotes'),
-  cardInfoPictures(path: '/card_info/pictures', name: 'cardInfoPictures');
+  cardInfoPictures(path: '/card_info/pictures', name: 'cardInfoPictures'),
+  cardInfoEdit(path: '/card_info/edit', name: 'cardInfoEdit');
 
   final String path;
   final String name;

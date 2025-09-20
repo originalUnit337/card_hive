@@ -1,3 +1,4 @@
+import 'package:card_hive/features/cards/presentation/theme/app_theme.dart';
 import 'package:card_hive/navigation/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -11,6 +12,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: AppRouter(Logger()).router);
+    return MaterialApp.router(
+      theme: AppTheme.lightAppTheme,
+      darkTheme: AppTheme.darkAppTheme,
+      routerConfig: AppRouter(Logger()).router,
+    );
   }
 }

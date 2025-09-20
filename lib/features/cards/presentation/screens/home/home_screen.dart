@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
     final appPalette = AppPalette.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        //backgroundColor: appPalette.appBarbackground,
         title: const Text('Cards'),
         actions: [
           IconButton(
@@ -71,16 +71,29 @@ class HomeScreen extends StatelessWidget {
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
-              return InkWell(
-                onTap: () {
-                  context.push(AppRoutes.cardInfo.path);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.amber,
+              return ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(20),
+
+                child: Material(
+                  child: InkWell(
+                    onTap: () {
+                      //FocusScope.of(context).unfocus();
+                      // Future.delayed(Duration(milliseconds: 100)).then(
+                      //   (_) =>
+                      //       context.mounted
+                      //           ? context.push(AppRoutes.cardInfo.path)
+                      //           : null,
+                      // );
+                      context.push(AppRoutes.cardInfo.path);
+                    },
+                    splashColor: Colors.black54,
+                    highlightColor: Colors.black54,
+                    splashFactory: InkRipple.splashFactory,
+                    child: Ink(
+                      decoration: BoxDecoration(color: Colors.amber),
+                      child: Center(child: Text(item)),
+                    ),
                   ),
-                  child: Center(child: Text(item)),
                 ),
               );
             },
