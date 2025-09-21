@@ -8,9 +8,9 @@ class CardInfoPicturesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentPalette = AppPalette.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Card Pictures')),
+      appBar: AppBar(title: const Text('Card Pictures')),
       body: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(15),
         child: Column(
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,

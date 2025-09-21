@@ -6,7 +6,7 @@ class DarkPalette implements Palette {
   Color get background => Colors.black;
 
   @override
-  Color get primary => Color(0xFFcf1a3d);
+  Color get primary => const Color(0xFFcf1a3d);
 
   @override
   Color get appBarbackground => const Color.fromARGB(12, 158, 158, 158);

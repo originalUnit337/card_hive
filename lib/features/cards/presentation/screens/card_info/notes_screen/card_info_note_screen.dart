@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class CardInfoNoteScreen extends StatelessWidget {
   const CardInfoNoteScreen({super.key});
@@ -8,7 +7,7 @@ class CardInfoNoteScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Padding(
+      body: const Padding(
         padding: EdgeInsetsGeometry.all(15),
         child: SingleChildScrollView(
           child: Column(
@@ -19,7 +18,7 @@ class CardInfoNoteScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8),
                 child: TextField(
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,

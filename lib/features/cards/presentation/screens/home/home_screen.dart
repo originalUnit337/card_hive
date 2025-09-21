@@ -44,25 +44,25 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: Container(
+            icon: DecoratedBox(
               decoration: BoxDecoration(
                 color: appPalette.primary,
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 4, right: 4),
+              child: const Padding(
+                padding: EdgeInsets.only(left: 4, right: 4),
                 child: Icon(Icons.add, color: Colors.white),
               ),
             ),
           ),
         ],
       ),
-      body: Container(
+      body: DecoratedBox(
         decoration: BoxDecoration(color: appPalette.background),
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 15,
               mainAxisSpacing: 15,
@@ -90,7 +90,7 @@ class HomeScreen extends StatelessWidget {
                     highlightColor: Colors.black54,
                     splashFactory: InkRipple.splashFactory,
                     child: Ink(
-                      decoration: BoxDecoration(color: Colors.amber),
+                      decoration: const BoxDecoration(color: Colors.amber),
                       child: Center(child: Text(item)),
                     ),
                   ),

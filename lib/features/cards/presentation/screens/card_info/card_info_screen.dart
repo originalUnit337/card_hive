@@ -47,21 +47,20 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
           ),
         ],
       ),
-      body: Container(
+      body: DecoratedBox(
         decoration: BoxDecoration(color: currentPalette.background),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 7,
           children: [
             Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(15),
               child: ClipRRect(
                 borderRadius: BorderRadiusGeometry.circular(10),
-                child: Container(
-                  decoration: BoxDecoration(color: Colors.white),
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(color: Colors.white),
                   child: Column(
                     spacing: 12,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
                         height: 170,
@@ -70,7 +69,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         // ? logo here if exist
-                        child: Center(
+                        child: const Center(
                           child: Text(
                             'CopyBook',
                             style: TextStyle(
@@ -82,7 +81,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                         ),
                       ),
                       Image.asset('assets/bar_codes/test_image.png'),
-                      Center(
+                      const Center(
                         child: Text(
                           '4 810 431 021 569',
                           style: TextStyle(fontSize: 38),
@@ -99,7 +98,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                 borderRadius: BorderRadiusGeometry.circular(10),
                 child: Material(
                   child: ListTile(
-                    leading: Icon(Icons.photo_camera),
+                    leading: const Icon(Icons.photo_camera),
                     title: Text(
                       'Card Pictures',
                       style: TextStyle(
@@ -113,18 +112,18 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsetsGeometry.only(left: 15, right: 15),
+              padding: const EdgeInsetsGeometry.only(left: 15, right: 15),
               child: ClipRRect(
                 borderRadius: BorderRadiusGeometry.circular(10),
                 child: Material(
                   child: InkWell(
-                    hoverDuration: Duration(milliseconds: 1000),
+                    hoverDuration: const Duration(milliseconds: 1000),
                     hoverColor: Colors.yellow,
                     focusColor: Colors.purple,
                     splashColor: Colors.green,
                     highlightColor: Colors.limeAccent,
                     child: ListTile(
-                      leading: Icon(Icons.notes),
+                      leading: const Icon(Icons.notes),
                       title: Text(
                         'Notes',
                         style: TextStyle(
@@ -133,13 +132,8 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                         ),
                       ),
                     ),
-                    onTap: () {
-                      Future.delayed(const Duration(milliseconds: 0)).then((_) {
-                        context.mounted
-                            ? context.pushNamed(AppRoutes.cardInfoNotes.name)
-                            : null;
-                      });
-                    },
+                    onTap:
+                        () => context.pushNamed(AppRoutes.cardInfoNotes.name),
                   ),
                 ),
               ),

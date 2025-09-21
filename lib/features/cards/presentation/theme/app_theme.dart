@@ -7,7 +7,7 @@ class AppTheme {
     final palette = LightPalette();
     return ThemeData(
       brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFcf1a3d)),
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFcf1a3d)),
       useMaterial3: true,
       scaffoldBackgroundColor: palette.background,
       appBarTheme: AppBarTheme(backgroundColor: palette.appBarbackground),
@@ -23,6 +23,20 @@ class AppTheme {
       useMaterial3: true,
       scaffoldBackgroundColor: palette.background,
       appBarTheme: AppBarTheme(backgroundColor: palette.appBarbackground),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.fromMap({
+            WidgetState.any: palette.primary,
+          }),
+
+          textStyle: const WidgetStateProperty.fromMap({
+            WidgetState.any: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          }),
+        ),
+      ),
     );
   }
 }

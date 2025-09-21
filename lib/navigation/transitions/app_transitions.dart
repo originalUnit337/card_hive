@@ -8,7 +8,7 @@ class AppTransitions {
       transitionDuration: const Duration(milliseconds: 200),
       reverseTransitionDuration: const Duration(milliseconds: 200),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
+        const begin = Offset(1, 0);
         const end = Offset.zero;
         const curve = Curves.easeInOutCubic;
         final tween = Tween(
@@ -16,9 +16,9 @@ class AppTransitions {
           end: end,
         ).chain(CurveTween(curve: curve));
 
-        final opacityTween = Tween(
-          begin: 0.0,
-          end: 1.0,
+        final opacityTween = Tween<double>(
+          begin: 0,
+          end: 1,
         ).chain(CurveTween(curve: curve));
         final positionAnim = animation.drive(tween);
         final opacityAnim = animation.drive(opacityTween);
