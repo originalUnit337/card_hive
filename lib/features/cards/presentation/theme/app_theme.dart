@@ -11,6 +11,20 @@ class AppTheme {
       useMaterial3: true,
       scaffoldBackgroundColor: palette.background,
       appBarTheme: AppBarTheme(backgroundColor: palette.appBarbackground),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.fromMap({
+            WidgetState.any: palette.primary,
+          }),
+
+          textStyle: const WidgetStateProperty.fromMap({
+            WidgetState.any: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          }),
+        ),
+      ),
     );
   }
 

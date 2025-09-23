@@ -68,13 +68,11 @@ class AppRouter {
             path: 'edit',
             name: AppRoutes.cardInfoEdit.name,
             pageBuilder: (context, state) {
-              return AppTransitions.getTransitionPage(
-                const CardInfoEditScreen(),
-              );
+              return AppTransitions.getTransitionPage(CardInfoEditScreen());
             },
             builder: (context, state) {
               _logger.d('Going to card info edit screen');
-              return const CardInfoEditScreen();
+              return CardInfoEditScreen();
             },
           ),
         ],

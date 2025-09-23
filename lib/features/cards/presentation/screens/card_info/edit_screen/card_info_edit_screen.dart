@@ -1,17 +1,100 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
-class CardInfoEditScreen extends StatefulWidget {
-  const CardInfoEditScreen({super.key});
+class CardInfoEditScreen extends StatelessWidget {
+  final ValueNotifier<int?> _selectedIndexNotifier = ValueNotifier(0);
+  final ValueNotifier<File?> _selectedLogoNotifier = ValueNotifier<File?>(null);
 
-  @override
-  State<CardInfoEditScreen> createState() => _CardInfoEditScreenState();
-}
+  final ImagePicker _picker = ImagePicker();
+  CardInfoEditScreen({super.key});
 
-class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
-  Color selectedChoice = Colors.white;
-  int? selectedIndex;
+  //   @override
+  //   State<CardInfoEditScreen> createState() => _CardInfoEditScreenState();
+  // }
+
+  // class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
+  final _colors = [
+    Colors.redAccent,
+    Colors.red,
+    Colors.orange,
+    Colors.deepOrange,
+    Colors.brown,
+    Colors.pink,
+    Colors.purple,
+    Colors.deepPurple,
+    const Color.fromARGB(255, 255, 194, 227),
+    Colors.yellow,
+    Colors.green,
+    Colors.blueGrey,
+    Colors.lightBlue,
+    Colors.blue,
+    Colors.deepPurpleAccent,
+  ];
+
+  Future<void> _pickFromCamera(BuildContext context) async {
+    try {
+      final picked = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
+      if (picked != null) _selectedLogoNotifier.value = File(picked.path);
+    } catch (e) {
+      // опционально: показать ошибку
+    } finally {
+      if (context.mounted) context.pop(); // закрыть диалог
+    }
+  }
+
+  Future<void> _pickFromGallery(BuildContext context) async {
+    try {
+      final picked = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (picked != null) _selectedLogoNotifier.value = File(picked.path);
+    } catch (e) {
+      // опционально: показать ошибку
+    } finally {
+      if (context.mounted) context.pop(); // закрыть диалог
+    }
+  }
+
+  void _showImageSourceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Добавить логотип'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Камера'),
+                  onTap: () => _pickFromCamera(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Галерея'),
+                  onTap: () => _pickFromGallery(context),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Отмена'),
+              ),
+            ],
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPalette = AppPalette.of(context);
@@ -50,11 +133,45 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                         child: Container(
                           width: 200,
                           height: 150,
-                          decoration: const BoxDecoration(color: Colors.red),
+                          color: Colors.transparent,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Container(color: Colors.grey.shade300),
+                              BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                child: Container(
+                                  color: Colors.black.withAlpha(0),
+                                ),
+                              ),
+                              ValueListenableBuilder(
+                                valueListenable: _selectedLogoNotifier,
+                                builder: (context, file, _) {
+                                  if (file != null) {
+                                    return ClipRRect(
+                                      borderRadius:
+                                          BorderRadiusGeometry.circular(10),
+                                      child: Image.file(
+                                        file,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    );
+                                  } else {
+                                    return const Center(
+                                      child: Text('No image selected'),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          //decoration: const BoxDecoration(color: Colors.red),
                         ),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          _showImageSourceDialog(context);
+                        },
                         child: const Text('Add Custom Logo'),
                       ),
                       Padding(
@@ -66,51 +183,55 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                             color: currentPalette.background,
                             child: Padding(
                               padding: const EdgeInsets.all(8),
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: 10,
-                                itemBuilder: (context, index) {
-                                  final isSelected = selectedIndex == index;
-                                  return Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedIndex = index;
-                                        });
-                                      },
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  isSelected
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
+                              child: ValueListenableBuilder<int?>(
+                                valueListenable: _selectedIndexNotifier,
+                                builder: (context, selectedIndex, _) {
+                                  return ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: 10,
+                                    itemBuilder: (context, index) {
+                                      final isSelected = selectedIndex == index;
+                                      return Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () {
+                                            _selectedIndexNotifier.value =
+                                                index;
+                                          },
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Container(
+                                                width: 50,
+                                                height: 50,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      isSelected
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
 
-                                          Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.red,
-                                              shape: BoxShape.circle,
-                                            ),
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  color: _colors[index],
+                                                  shape: BoxShape.circle,
+                                                ),
 
-                                            // child: Container(
-                                            //   color: Colors.red,
-                                            //   width: 40,
-                                            //   height: 40,
-                                            // ),
+                                                // child: Container(
+                                                //   color: Colors.red,
+                                                //   width: 40,
+                                                //   height: 40,
+                                                // ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    ),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
                               ),
