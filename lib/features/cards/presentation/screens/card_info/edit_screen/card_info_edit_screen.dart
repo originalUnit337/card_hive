@@ -44,9 +44,8 @@ class CardInfoEditScreen extends StatelessWidget {
       );
       if (picked != null) _selectedLogoNotifier.value = File(picked.path);
     } catch (e) {
-      // опционально: показать ошибку
     } finally {
-      if (context.mounted) context.pop(); // закрыть диалог
+      if (context.mounted) context.pop(); 
     }
   }
 
@@ -58,9 +57,8 @@ class CardInfoEditScreen extends StatelessWidget {
       );
       if (picked != null) _selectedLogoNotifier.value = File(picked.path);
     } catch (e) {
-      // опционально: показать ошибку
     } finally {
-      if (context.mounted) context.pop(); // закрыть диалог
+      if (context.mounted) context.pop();
     }
   }
 
@@ -69,18 +67,18 @@ class CardInfoEditScreen extends StatelessWidget {
       context: context,
       builder:
           (_) => AlertDialog(
-            title: const Text('Добавить логотип'),
+            title: const Text('Add custom logo'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
-                  title: const Text('Камера'),
+                  title: const Text('Camera'),
                   onTap: () => _pickFromCamera(context),
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library),
-                  title: const Text('Галерея'),
+                  title: const Text('Gallery'),
                   onTap: () => _pickFromGallery(context),
                 ),
               ],
@@ -88,7 +86,7 @@ class CardInfoEditScreen extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Отмена'),
+                child: const Text('Cancel'),
               ),
             ],
           ),
@@ -130,30 +128,37 @@ class CardInfoEditScreen extends StatelessWidget {
                       const Text('Design'),
                       ClipRRect(
                         borderRadius: BorderRadiusGeometry.circular(10),
-                        child: Container(
-                          width: 200,
-                          height: 150,
-                          color: Colors.transparent,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Container(color: Colors.grey.shade300),
-                              BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                child: Container(
-                                  color: Colors.black.withAlpha(0),
-                                ),
-                              ),
-                              ValueListenableBuilder(
+                        child: ValueListenableBuilder(
+                          valueListenable: _selectedIndexNotifier,
+                          builder: (context, value, child) {
+                            return Container(
+                              width: 200,
+                              height: 150,
+                              color: _colors[_selectedIndexNotifier.value ?? 0],
+                              child: ValueListenableBuilder(
                                 valueListenable: _selectedLogoNotifier,
                                 builder: (context, file, _) {
                                   if (file != null) {
                                     return ClipRRect(
                                       borderRadius:
                                           BorderRadiusGeometry.circular(10),
-                                      child: Image.file(
-                                        file,
-                                        fit: BoxFit.cover,
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          Container(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                          BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                              sigmaX: 6,
+                                              sigmaY: 6,
+                                            ),
+                                            child: Container(
+                                              color: Colors.black.withAlpha(0),
+                                            ),
+                                          ),
+                                          Image.file(file, fit: BoxFit.cover),
+                                        ],
                                       ),
                                     );
                                   } else {
@@ -163,16 +168,36 @@ class CardInfoEditScreen extends StatelessWidget {
                                   }
                                 },
                               ),
-                            ],
-                          ),
-                          //decoration: const BoxDecoration(color: Colors.red),
+
+                            );
+                          },
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          _showImageSourceDialog(context);
+                      ValueListenableBuilder(
+                        valueListenable: _selectedLogoNotifier,
+                        builder: (context, value, child) {
+                          if (_selectedLogoNotifier.value == null) {
+                            return TextButton(
+                              onPressed: () {
+                                _showImageSourceDialog(context);
+                              },
+                              child: const Text('Add Custom Logo'),
+                            );
+                          } else {
+                            return Row(
+                              children: [
+                                TextButton(
+                                  onPressed: () => _showImageSourceDialog(context),
+                                  child: const Text('Change Image'),
+                                ),
+                                TextButton(
+                                  onPressed: () => _selectedLogoNotifier.value = null,
+                                  child: const Text('Remove Image'),
+                                ),
+                              ],
+                            );
+                          }
                         },
-                        child: const Text('Add Custom Logo'),
                       ),
                       Padding(
                         padding: const EdgeInsetsGeometry.all(10),
@@ -220,12 +245,6 @@ class CardInfoEditScreen extends StatelessWidget {
                                                   color: _colors[index],
                                                   shape: BoxShape.circle,
                                                 ),
-
-                                                // child: Container(
-                                                //   color: Colors.red,
-                                                //   width: 40,
-                                                //   height: 40,
-                                                // ),
                                               ),
                                             ],
                                           ),
@@ -244,6 +263,8 @@ class CardInfoEditScreen extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () => context.pop(), child: const Text('Save'))),
+            SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: () => context.pop(), label: const Text('Delete Card'), icon: const Icon(Icons.delete),),)
           ],
         ),
       ),
