@@ -8,11 +8,11 @@ class CardsService {
 
   CardsService(this.box);
 
-  Future<int> putCard(CardModel model) async => await box.putAsync(model);
+  Future<int> putCard(CardModel model) async => box.putAsync(model);
 
-  Future<List<CardModel>> getAll() async => await box.getAllAsync();
+  Future<List<CardModel>> getAll() async => box.getAllAsync();
 
-  Future<CardModel?> getById(int id) async => await box.getAsync(id);
+  Future<CardModel?> getById(int id) async => box.getAsync(id);
 
   Future<bool> remove(int id) async => box.removeAsync(id);
 
@@ -33,5 +33,5 @@ class CardsService {
   }
 
   Future<List<int>> putMany(List<CardModel> models) async =>
-      await box.putManyAsync(models);
+      box.putManyAsync(models);
 }

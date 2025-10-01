@@ -11,6 +11,9 @@ class CardMapper {
     color: Color(model.colorValue),
     label: model.label,
     logoPath: model.logoPath,
+    barcodePath: model.barcodePath,
+    backPath: model.backPath,
+    frontPath: model.frontPath,
     note: model.note,
   );
 
@@ -21,6 +24,9 @@ class CardMapper {
     colorValue: entity.color.toARGB32(),
     label: entity.label,
     logoPath: entity.logoPath,
+    barcodePath: entity.barcodePath,
+    backPath: entity.backPath,
+    frontPath: entity.frontPath,
     note: entity.note,
   );
 }

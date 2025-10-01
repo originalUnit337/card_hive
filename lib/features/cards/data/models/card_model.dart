@@ -4,22 +4,37 @@ import 'package:objectbox/objectbox.dart';
 class CardModel {
   @Id()
   int id;
+
   @Index()
   String name;
+
   String? label;
+
   @Index()
   String number;
+
   String? logoPath;
+
+  String? barcodePath;
+
+  String? frontPath;
+
+  String? backPath;
+
   String? note;
+
   int colorValue;
 
   CardModel({
     required this.id,
     required this.name,
-    this.label,
     required this.number,
-    this.logoPath,
-    this.note,
     required this.colorValue,
+    this.label,
+    this.logoPath,
+    this.barcodePath,
+    this.frontPath,
+    this.backPath,
+    this.note,
   });
 }

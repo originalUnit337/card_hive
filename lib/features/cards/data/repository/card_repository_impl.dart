@@ -1,3 +1,4 @@
+import 'package:card_hive/core/resources/data_state.dart';
 import 'package:card_hive/features/cards/data/datasources/cards_service.dart';
 import 'package:card_hive/features/cards/data/mapper/card_mapper.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
@@ -34,13 +35,22 @@ class CardRepositoryImpl implements CardRepository {
   }
 
   @override
-  Future<int> putCard(CardEntity card) async {
+  Future<DataState<int>> putCard(CardEntity card) async {
     try {
       _logger.d('Enter putCard');
-      return await _cardsService.putCard(CardMapper.toModel(card));
+      final result = await _cardsService.putCard(CardMapper.toModel(card));
+      if (result >= 0) {
+        return DataSuccess(result);
+      } else {
+        return DataFailed(Exception('error: $result was not >= 0'));
+      }
     } catch (e) {
       _logger.e('Error putCard $e');
-      rethrow;
+      if (e is Exception) {
+        return DataFailed(e);
+      } else {
+        return DataFailed(Exception('error: $e'));
+      }
     }
   }
 
