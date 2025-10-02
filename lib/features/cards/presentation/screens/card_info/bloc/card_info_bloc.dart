@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:card_hive/core/resources/data_state.dart';
 import 'package:card_hive/features/cards/domain/usecases/add_or_update_card_usecase.dart';
+import 'package:card_hive/features/cards/domain/usecases/remove_card_usecase.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_state.dart';
 
 class CardInfoBloc extends Bloc<CardInfoEvent, CardInfoState> {
   final AddOrUpdateCardUsecase _addOrUpdateCardUsecase;
-  CardInfoBloc(this._addOrUpdateCardUsecase) : super(const CardInfoInitial()) {
+  final RemoveCardUsecase _removeCardUsecase;
+  CardInfoBloc(this._addOrUpdateCardUsecase, this._removeCardUsecase) : super(const CardInfoInitial()) {
     on<SaveCardEvent>(_saveCard);
+    on<RemoveCardEvent>(_removeCard);
   }
 
   FutureOr<void> _saveCard(
@@ -21,6 +24,18 @@ class CardInfoBloc extends Bloc<CardInfoEvent, CardInfoState> {
       emit(CardInfoError(result.exception.toString()));
     } else {
       emit(CardInfoLoaded(event.card));
+    }
+  }
+
+  FutureOr<void> _removeCard(
+    RemoveCardEvent event,
+    Emitter<CardInfoState> emit,
+  ) async {
+    final result = await _removeCardUsecase(params: event.id);
+    if (result is DataFailed) {
+      emit(CardInfoError(result.exception.toString()));
+    } else {
+      //TODO: Return some feedback of successful remove
     }
   }
 }

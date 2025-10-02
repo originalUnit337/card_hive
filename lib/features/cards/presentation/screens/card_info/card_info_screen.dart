@@ -34,7 +34,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
   Widget build(BuildContext context) {
     final currentPalette = AppPalette.of(context);
     return BlocProvider<CardInfoBloc>(
-      create: (context) => CardInfoBloc(getIt()),
+      create: (context) => CardInfoBloc(getIt(), getIt()),
       child: Scaffold(
         appBar: AppBar(
           //backgroundColor: currentPalette.appBarbackground,

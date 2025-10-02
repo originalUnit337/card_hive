@@ -11,14 +11,18 @@ class CardRepositoryImpl implements CardRepository {
 
   CardRepositoryImpl(this._cardsService, this._logger);
   @override
-  Future<List<CardEntity>> getAll() async {
+  Future<DataState<List<CardEntity>>> getAll() async {
     try {
       _logger.d('Enter getAll');
       final result = await _cardsService.getAll();
-      return result.map((e) => CardMapper.fromModel(e)).toList();
+      return DataSuccess(result.map((e) => CardMapper.fromModel(e)).toList());
     } catch (e) {
       _logger.e('Error getAll $e');
-      rethrow;
+      if (e is Exception) {
+        return DataFailed(e);
+      } else {
+        return DataFailed(Exception(e));
+      }
     }
   }
 
@@ -68,13 +72,17 @@ class CardRepositoryImpl implements CardRepository {
   }
 
   @override
-  Future<bool> remove(int id) async {
+  Future<DataState<bool>> remove(int id) async {
     try {
       final result = await _cardsService.remove(id);
-      return result;
+      return DataSuccess(result);
     } catch (e) {
       _logger.e('Error remove $e');
-      rethrow;
+      if (e is Exception) {
+        return DataFailed(e);
+      } else {
+        return DataFailed(Exception('error: $e'));
+      }
     }
   }
 

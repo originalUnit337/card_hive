@@ -17,3 +17,8 @@ class DeleteCardEvent extends CardInfoEvent {
   final CardEntity card;
   const DeleteCardEvent(this.card);
 }
+
+class RemoveCardEvent extends CardInfoEvent {
+  final int id;
+  const RemoveCardEvent(this.id);
+}
