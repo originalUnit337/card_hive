@@ -1,5 +1,6 @@
+import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
+import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
-import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/injection_container.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,8 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class CardInfoScreen extends StatefulWidget {
-  const CardInfoScreen({super.key});
+  final CardEntity card;
+  const CardInfoScreen({required this.card, super.key});
 
   @override
   State<CardInfoScreen> createState() => _CardInfoScreenState();
@@ -24,7 +26,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
   }
 
   @override
-  dispose() {
+  void dispose() {
     WakelockPlus.disable();
     ScreenBrightness.instance.resetApplicationScreenBrightness();
     super.dispose();
@@ -40,7 +42,11 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
           //backgroundColor: currentPalette.appBarbackground,
           actions: [
             TextButton(
-              onPressed: () => context.push(AppRoutes.cardInfoEdit.path),
+              onPressed:
+                  () => context.push(
+                    AppRoutes.cardInfoEdit.path,
+                    extra: widget.card,
+                  ),
               child: Text(
                 'Edit',
                 style: TextStyle(
@@ -70,14 +76,14 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                         Container(
                           height: 170,
                           decoration: BoxDecoration(
-                            color: Colors.brown,
+                            color: widget.card.color,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           // ? logo here if exist
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              'CopyBook',
-                              style: TextStyle(
+                              widget.card.name,
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -86,10 +92,10 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                           ),
                         ),
                         Image.asset('assets/bar_codes/test_image.png'),
-                        const Center(
+                        Center(
                           child: Text(
-                            '4 810 431 021 569',
-                            style: TextStyle(fontSize: 38),
+                            widget.card.number,
+                            style: const TextStyle(fontSize: 38),
                           ),
                         ),
                       ],

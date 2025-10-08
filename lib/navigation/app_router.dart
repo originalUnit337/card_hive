@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:card_hive/core/ui_kit/error_screen/error_screen.dart';
+import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/card_info_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/edit_screen/card_info_edit_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/notes_screen/card_info_note_screen.dart';
@@ -31,11 +33,23 @@ class AppRouter {
         path: AppRoutes.cardInfo.path,
         name: AppRoutes.cardInfo.name,
         pageBuilder: (context, state) {
-          return AppTransitions.getTransitionPage(const CardInfoScreen());
+          final extra = state.extra;
+          if (extra is CardEntity) {
+            return AppTransitions.getTransitionPage(
+              CardInfoScreen(card: extra),
+            );
+          } else {
+            return AppTransitions.getTransitionPage(const ErrorScreen());
+          }
         },
         builder: (context, state) {
           _logger.d('Going to card info screen');
-          return const CardInfoScreen();
+          final extra = state.extra;
+          if (extra is CardEntity) {
+            return CardInfoScreen(card: extra);
+          } else {
+            return const ErrorScreen();
+          }
         },
         routes: [
           GoRoute(
@@ -68,11 +82,23 @@ class AppRouter {
             path: 'edit',
             name: AppRoutes.cardInfoEdit.name,
             pageBuilder: (context, state) {
-              return AppTransitions.getTransitionPage(CardInfoEditScreen());
+              final extra = state.extra;
+              if (extra is CardEntity) {
+                return AppTransitions.getTransitionPage(
+                  CardInfoEditScreen(card: extra),
+                );
+              } else {
+                return AppTransitions.getTransitionPage(const ErrorScreen());
+              }
             },
             builder: (context, state) {
               _logger.d('Going to card info edit screen');
-              return CardInfoEditScreen();
+              final extra = state.extra;
+              if (extra is CardEntity) {
+                return CardInfoEditScreen(card: extra);
+              } else {
+                return const ErrorScreen();
+              }
             },
           ),
         ],

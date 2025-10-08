@@ -1,7 +1,8 @@
+import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
-import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
+import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/injection_container.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -10,34 +11,6 @@ import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-  static const items = <String>[
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +46,8 @@ class HomeScreen extends StatelessWidget {
                 return switch (state) {
                   HomeInitial() => const CircularProgressIndicator(),
                   HomeLoading() => const CircularProgressIndicator(),
-                  HomeLoaded() => const _buildGridView(items: items),
-                  HomeError() => Center(child: Text(state.message),),
+                  HomeLoaded() => _BuildGridView(items: state.cards),
+                  HomeError() => Center(child: Text(state.message)),
                 };
               },
             ),
@@ -85,13 +58,10 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _buildGridView extends StatelessWidget {
-  const _buildGridView({
-    super.key,
-    required this.items,
-  });
+class _BuildGridView extends StatelessWidget {
+  const _BuildGridView({required this.items});
 
-  final List<String> items;
+  final List<CardEntity> items;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +77,7 @@ class _buildGridView extends StatelessWidget {
         final item = items[index];
         return ClipRRect(
           borderRadius: BorderRadiusGeometry.circular(20),
-          
+
           child: Material(
             child: InkWell(
               onTap: () {
@@ -118,14 +88,14 @@ class _buildGridView extends StatelessWidget {
                 //           ? context.push(AppRoutes.cardInfo.path)
                 //           : null,
                 // );
-                context.push(AppRoutes.cardInfo.path);
+                context.push(AppRoutes.cardInfo.path, extra: item);
               },
               splashColor: Colors.black54,
               highlightColor: Colors.black54,
               splashFactory: InkRipple.splashFactory,
               child: Ink(
-                decoration: const BoxDecoration(color: Colors.amber),
-                child: Center(child: Text(item)),
+                decoration: BoxDecoration(color: item.color),
+                child: Center(child: Text(item.name)),
               ),
             ),
           ),

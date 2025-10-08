@@ -1,28 +1,81 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
-import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-class CardInfoEditScreen extends StatelessWidget {
-  final ValueNotifier<int?> _selectedIndexNotifier = ValueNotifier(0);
+class CardInfoEditScreen extends StatefulWidget {
+  final CardEntity card;
+
+  const CardInfoEditScreen({required this.card, super.key});
+
+  @override
+  State<CardInfoEditScreen> createState() => _CardInfoEditScreenState();
+}
+
+class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
+  late final ValueNotifier<int?> _selectedIndexNotifier = ValueNotifier(
+    _closestColorIndexStatic(widget.card.color),
+  );
+
   final ValueNotifier<File?> _selectedLogoNotifier = ValueNotifier<File?>(null);
 
+  late final TextEditingController nameController;
+  late final TextEditingController numberController;
+  late final TextEditingController labelController;
+
   final ImagePicker _picker = ImagePicker();
-  CardInfoEditScreen({super.key});
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.card.name);
+    numberController = TextEditingController(text: widget.card.number);
+    labelController = TextEditingController(text: widget.card.label ?? '');
+  }
+
+  static int _closestColorIndexStatic(Color target) {
+    final colors = [
+      Colors.redAccent,
+      Colors.red,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      const Color.fromARGB(255, 255, 194, 227),
+      Colors.yellow,
+      Colors.green,
+      Colors.blueGrey,
+      Colors.lightBlue,
+      Colors.blue,
+      Colors.deepPurpleAccent,
+    ];
+    var bestIndex = 0;
+    var bestDist = double.infinity;
+    for (var i = 0; i < colors.length; i++) {
+      final c = colors[i];
+      final dr = c.r - target.r;
+      final dg = c.g - target.g;
+      final db = c.b - target.b;
+      final dist = dr * dr + dg * dg + db * db;
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIndex = i;
+      }
+    }
+    return bestIndex;
+  }
 
   //   @override
-  //   State<CardInfoEditScreen> createState() => _CardInfoEditScreenState();
-  // }
-
-  // class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
   final _colors = [
     Colors.redAccent,
     Colors.red,
@@ -40,6 +93,14 @@ class CardInfoEditScreen extends StatelessWidget {
     Colors.blue,
     Colors.deepPurpleAccent,
   ];
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    numberController.dispose();
+    labelController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickFromCamera(BuildContext context) async {
     try {
@@ -111,9 +172,23 @@ class CardInfoEditScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           actions: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text('Save'),
+            Builder(
+              builder: (context) {
+                return TextButton(
+                  onPressed:
+                      () => context.read<CardInfoBloc>().add(
+                        SaveCardEvent(
+                          widget.card.copyWith(
+                            name: nameController.text,
+                            number: numberController.text,
+                            label: labelController.text,
+                            color: _colors[_selectedIndexNotifier.value ?? 0],
+                          ),
+                        ),
+                      ),
+                  child: const Text('Save'),
+                );
+              },
             ),
           ],
         ),
@@ -130,11 +205,11 @@ class CardInfoEditScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const Text('Card name'),
-                        TextFormField(),
+                        TextFormField(controller: nameController),
                         const Text('Card Number'),
-                        TextFormField(),
+                        TextFormField(controller: numberController),
                         const Text('Label'),
-                        TextFormField(),
+                        TextFormField(controller: labelController),
                         const Text('Design'),
                         ClipRRect(
                           borderRadius: BorderRadiusGeometry.circular(10),

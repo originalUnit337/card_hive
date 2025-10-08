@@ -34,4 +34,43 @@ class CardsService {
 
   Future<List<int>> putMany(List<CardModel> models) async =>
       box.putManyAsync(models);
+
+  Stream<List<CardModel>> watchAll() async* {
+    final inintialQuery = box.query().build();
+    try {
+      yield await inintialQuery.findAsync();
+    } finally {
+      inintialQuery.close();
+    }
+    final q = box.query().build();
+    await for (final _ in q.stream()) {
+      final q2 = box.query().build();
+      try {
+        yield await q2.findAsync();
+      } finally {
+        q2.close();
+      }
+    }
+    q.close();
+  }
+
+  Stream<CardModel?> watchById(int id) async* {
+    final initialQuery = box.query(CardModel_.id.equals(id)).build();
+    try {
+      yield await initialQuery.findFirstAsync();
+    } finally {
+      initialQuery.close();
+    }
+
+    final q = box.query(CardModel_.id.equals(id)).build();
+    await for (final _ in q.stream()) {
+      final q2 = box.query(CardModel_.id.equals(id)).build();
+      try {
+        yield await q2.findFirstAsync();
+      } finally {
+        q2.close();
+      }
+    }
+    q.close();
+  }
 }

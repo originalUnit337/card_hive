@@ -1,4 +1,4 @@
-import 'package:card_hive/features/cards/presentation/ui_kit/palette/app_palette.dart';
+import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:flutter/material.dart';
 
 class CardInfoPicturesScreen extends StatelessWidget {

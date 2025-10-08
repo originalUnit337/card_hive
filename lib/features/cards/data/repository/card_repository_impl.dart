@@ -15,6 +15,12 @@ class CardRepositoryImpl implements CardRepository {
     try {
       _logger.d('Enter getAll');
       final result = await _cardsService.getAll();
+      _logger.i('getAll result: ${result.length}');
+      for (final i in result) {
+        _logger.i(
+          'id: ${i.id} name: ${i.name} number: ${i.number} color: ${i.colorValue} label: ${i.label} logoPath: ${i.logoPath} barcodePath: ${i.barcodePath} backPath: ${i.backPath} frontPath: ${i.frontPath} note: ${i.note}',
+        );
+      }
       return DataSuccess(result.map((e) => CardMapper.fromModel(e)).toList());
     } catch (e) {
       _logger.e('Error getAll $e');
@@ -44,8 +50,10 @@ class CardRepositoryImpl implements CardRepository {
       _logger.d('Enter putCard');
       final result = await _cardsService.putCard(CardMapper.toModel(card));
       if (result >= 0) {
+        _logger.i('SUCCESS: putCard result: $result');
         return DataSuccess(result);
       } else {
+        _logger.e('Error putCard $result');
         return DataFailed(Exception('error: $result was not >= 0'));
       }
     } catch (e) {
@@ -96,5 +104,17 @@ class CardRepositoryImpl implements CardRepository {
       _logger.e('Error searchByNameOrNumber $e');
       rethrow;
     }
+  }
+
+  @override
+  Stream<List<CardEntity>> watchAll() {
+    return _cardsService.watchAll().map(
+      (models) => models.map(CardMapper.fromModel).toList(),
+    );
+  }
+
+  @override
+  Stream<CardEntity?> watchById(int id) {
+    return _cardsService.watchById(id).map((e) => e == null ? null : CardMapper.fromModel(e));
   }
 }

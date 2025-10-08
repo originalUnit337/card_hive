@@ -8,4 +8,8 @@ abstract class CardRepository {
   Future<DataState<bool>> remove(int id);
   Future<List<CardEntity>> searchByNameOrNumber(String query);
   Future<List<int>> putMany(List<CardEntity> models);
+
+  //streams
+  Stream<List<CardEntity>> watchAll();
+  Stream<CardEntity?> watchById(int id);
 }

@@ -1,5 +1,5 @@
-import 'package:card_hive/features/cards/presentation/ui_kit/palette/dark_palette.dart';
-import 'package:card_hive/features/cards/presentation/ui_kit/palette/light_palette.dart';
+import 'package:card_hive/core/ui_kit/palette/dark_palette.dart';
+import 'package:card_hive/core/ui_kit/palette/light_palette.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
