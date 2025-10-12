@@ -5,6 +5,7 @@ import 'package:card_hive/features/cards/domain/repository/card_repository.dart'
 import 'package:card_hive/features/cards/domain/usecases/add_or_update_card_usecase.dart';
 import 'package:card_hive/features/cards/domain/usecases/get_all_cards_usecase.dart';
 import 'package:card_hive/features/cards/domain/usecases/remove_card_usecase.dart';
+import 'package:card_hive/features/cards/domain/usecases/watch_all_cards_usecase.dart';
 import 'package:card_hive/objectbox.g.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -36,5 +37,6 @@ void _initUseCases() {
     AddOrUpdateCardUsecase(getIt()),
   )
   ..registerSingleton<RemoveCardUsecase>(RemoveCardUsecase(getIt()))
-  ..registerSingleton<GetAllCardsUsecase>(GetAllCardsUsecase(getIt()));
+  ..registerSingleton<GetAllCardsUsecase>(GetAllCardsUsecase(getIt()))
+  ..registerSingleton<WatchAllCardsUsecase>(WatchAllCardsUsecase(getIt()));
 }

@@ -1,8 +1,8 @@
+import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
-import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/injection_container.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -15,42 +15,39 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appPalette = AppPalette.of(context);
-    return BlocProvider<HomeBloc>(
-      create: (context) => HomeBloc(getIt())..add(const GetAllCardsEvent()),
-      child: Scaffold(
-        appBar: AppBar(
-          //backgroundColor: appPalette.appBarbackground,
-          title: const Text('Cards'),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: appPalette.primary,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.only(left: 4, right: 4),
-                  child: Icon(Icons.add, color: Colors.white),
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        //backgroundColor: appPalette.appBarbackground,
+        title: const Text('Cards'),
+        actions: [
+          IconButton(
+            onPressed: () => context.push(AppRoutes.storeList.path),
+            icon: DecoratedBox(
+              decoration: BoxDecoration(
+                color: appPalette.primary,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.only(left: 4, right: 4),
+                child: Icon(Icons.add, color: Colors.white),
               ),
             ),
-          ],
-        ),
-        body: DecoratedBox(
-          decoration: BoxDecoration(color: appPalette.background),
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: BlocBuilder<HomeBloc, HomeState>(
-              builder: (context, state) {
-                return switch (state) {
-                  HomeInitial() => const CircularProgressIndicator(),
-                  HomeLoading() => const CircularProgressIndicator(),
-                  HomeLoaded() => _BuildGridView(items: state.cards),
-                  HomeError() => Center(child: Text(state.message)),
-                };
-              },
-            ),
+          ),
+        ],
+      ),
+      body: DecoratedBox(
+        decoration: BoxDecoration(color: appPalette.background),
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              return switch (state) {
+                HomeInitial() => const CircularProgressIndicator(),
+                HomeLoading() => const CircularProgressIndicator(),
+                HomeLoaded() => _BuildGridView(items: state.cards),
+                HomeError() => Center(child: Text(state.message)),
+              };
+            },
           ),
         ),
       ),

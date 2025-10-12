@@ -5,6 +5,9 @@ import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
+import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
+import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
+import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
 import 'package:card_hive/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -175,17 +178,20 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
             Builder(
               builder: (context) {
                 return TextButton(
-                  onPressed:
-                      () => context.read<CardInfoBloc>().add(
-                        SaveCardEvent(
-                          widget.card.copyWith(
-                            name: nameController.text,
-                            number: numberController.text,
-                            label: labelController.text,
-                            color: _colors[_selectedIndexNotifier.value ?? 0],
-                          ),
+                  onPressed: () {
+                    context.read<CardInfoBloc>().add(
+                      SaveCardEvent(
+                        widget.card.copyWith(
+                          name: nameController.text,
+                          number: numberController.text,
+                          label: labelController.text,
+                          color: _colors[_selectedIndexNotifier.value ?? 0],
                         ),
                       ),
+                    );
+                      context.read<HomeBloc>().add(const GetAllCardsEvent());
+                  },
+
                   child: const Text('Save'),
                 );
               },
