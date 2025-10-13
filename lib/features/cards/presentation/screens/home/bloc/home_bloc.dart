@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  List<CardEntity> cards = [];
   final Logger _logger;
 
   final GetAllCardsUsecase _getAllCardsUsecase;
@@ -18,6 +19,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(this._logger, this._getAllCardsUsecase, this._watchAllCardsUsecase)
     : super(const HomeInitial()) {
     on<GetAllCardsEvent>(_getAllCards);
+    on<UpdateCardsEvent>(_updateCards);
     on<StartWatchCardsEvent>(_startWatchCards);
     on<StopWatchCardsEvent>(_stopWatchCards);
     on<InternalWatchData>(_onInternalWatchData);
@@ -35,6 +37,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (result is DataFailed) {
       emit(HomeError(result.exception.toString()));
     } else {
+      cards = result.data ?? [];
       emit(HomeLoaded(result.data ?? []));
     }
   }
@@ -107,5 +110,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) {
     emit(const HomeLoading());
     emit(HomeError(event.error?.toString() ?? 'Uknown error'));
+  }
+
+  FutureOr<void> _updateCards(
+    UpdateCardsEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(const HomeLoading());
+    cards = event.cards;
+    emit(HomeLoaded(event.cards));
   }
 }

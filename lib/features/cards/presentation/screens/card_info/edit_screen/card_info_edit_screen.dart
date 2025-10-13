@@ -189,7 +189,19 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                         ),
                       ),
                     );
-                      context.read<HomeBloc>().add(const GetAllCardsEvent());
+                    final cards = context.read<HomeBloc>().cards;
+                    final result = cards.indexWhere(
+                      (el) => el.id == widget.card.id,
+                    );
+                    if (result != -1) {
+                      cards[result] = widget.card.copyWith(
+                        name: nameController.text,
+                        number: numberController.text,
+                        label: labelController.text,
+                        color: _colors[_selectedIndexNotifier.value ?? 0],
+                      );
+                      context.read<HomeBloc>().add(UpdateCardsEvent(cards));
+                    }
                   },
 
                   child: const Text('Save'),

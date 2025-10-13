@@ -12,6 +12,11 @@ class GetAllCardsEvent extends HomeEvent {
   const GetAllCardsEvent();
 }
 
+class UpdateCardsEvent extends HomeEvent {
+  final List<CardEntity> cards;
+  const UpdateCardsEvent(this.cards);
+}
+
 class StartWatchCardsEvent extends HomeEvent {}
 
 class StopWatchCardsEvent extends HomeEvent {}
