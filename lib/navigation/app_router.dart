@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:card_hive/core/ui_kit/error_screen/error_screen.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
+import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/card_info_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/edit_screen/card_info_edit_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/notes_screen/card_info_note_screen.dart';
@@ -20,8 +21,9 @@ import 'package:logger/logger.dart';
 class AppRouter {
   final Logger _logger;
   final HomeBloc _homeBloc;
+  final CardInfoBloc _cardInfoBloc;
 
-  AppRouter(this._logger, this._homeBloc);
+  AppRouter(this._logger, this._homeBloc, this._cardInfoBloc);
 
   GoRouter get router => GoRouter(
     routes: [
@@ -30,10 +32,7 @@ class AppRouter {
         name: AppRoutes.homeRoute.name,
         pageBuilder: (context, state) {
           return AppTransitions.getTransitionPage(
-            BlocProvider.value(
-              value: _homeBloc,
-              child: const HomeScreen(),
-            ),
+            BlocProvider.value(value: _homeBloc, child: const HomeScreen()),
           );
         },
         builder: (context, state) {
@@ -51,8 +50,11 @@ class AppRouter {
           final extra = state.extra;
           if (extra is CardEntity) {
             return AppTransitions.getTransitionPage(
-              BlocProvider.value(
-                value: _homeBloc,
+              MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: _homeBloc),
+                  BlocProvider.value(value: _cardInfoBloc),
+                ],
                 child: CardInfoScreen(card: extra),
               ),
             );
@@ -64,8 +66,11 @@ class AppRouter {
           _logger.d('Going to card info screen');
           final extra = state.extra;
           if (extra is CardEntity) {
-            return BlocProvider.value(
-              value: _homeBloc,
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: _homeBloc),
+                BlocProvider.value(value: _cardInfoBloc),
+              ],
               child: CardInfoScreen(card: extra),
             );
           } else {

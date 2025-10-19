@@ -26,14 +26,14 @@ class AddCustomCardScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Grant access in\nSettings to continue scanning',
                       style: TextStyle(color: Colors.white, fontSize: 20),
                       textAlign: TextAlign.center,
                     ),
                     ElevatedButton(
                       onPressed: () {},
-                      child: Text('Open Settings'),
+                      child: const Text('Open Settings'),
                     ),
                   ],
                 ),
@@ -43,7 +43,9 @@ class AddCustomCardScreen extends StatelessWidget {
               borderRadius: BorderRadiusGeometry.circular(10),
               child: Material(
                 child: InkWell(
-                  onTap: () => context.push(AppRoutes.cardInfoEdit.path, extra: CardEntity(id: 0, name: '', number: '', color: Colors.white)),
+                  onTap: () {
+                    context.push(AppRoutes.cardInfoEdit.path, extra: CardEntity(id: 0, name: '', number: '', color: Colors.white));
+                  },
                   child: ListTile(
                     title: Text(
                       'Enter manually',

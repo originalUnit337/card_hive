@@ -5,6 +5,7 @@ import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
+import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_state.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
@@ -131,6 +132,43 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     }
   }
 
+  void _saveCard() {
+    context.read<CardInfoBloc>().add(
+      SaveCardEvent(
+        widget.card.copyWith(
+          name: nameController.text,
+          number: numberController.text,
+          label: labelController.text,
+          color: _colors[_selectedIndexNotifier.value ?? 0],
+        ),
+      ),
+    );
+    final cards = context.read<HomeBloc>().cards;
+    final result = cards.indexWhere((el) => el.id == widget.card.id);
+    // ! if UPDATE card 
+    if (result != -1) {
+      cards[result] = widget.card.copyWith(
+        name: nameController.text,
+        number: numberController.text,
+        label: labelController.text,
+        color: _colors[_selectedIndexNotifier.value ?? 0],
+      );
+      context.read<HomeBloc>().add(UpdateCardsEvent(cards));
+    }
+    // ! if ADD new card
+    else {
+      // final addedCard = widget.card.copyWith(
+      //     name: nameController.text,
+      //     number: numberController.text,
+      //     label: labelController.text,
+      //     color: _colors[_selectedIndexNotifier.value ?? 0],
+      //   );
+      // cards.add(addedCard);
+      // context.read<HomeBloc>().add(UpdateCardsEvent(cards));
+        }
+    //context.pop();
+  }
+
   void _showImageSourceDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -165,8 +203,17 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
   @override
   Widget build(BuildContext context) {
     final currentPalette = AppPalette.of(context);
-    return BlocProvider<CardInfoBloc>(
-      create: (context) => CardInfoBloc(getIt(), getIt()),
+    return BlocListener<CardInfoBloc, CardInfoState>(
+      listener: (context, state) {
+        if (state is CardInfoLoaded) {
+          final addedCard = context.read<CardInfoBloc>().card;
+          final cards = context.read<HomeBloc>().cards;
+          if (addedCard != null) cards.add(addedCard);
+          context.read<HomeBloc>().add(UpdateCardsEvent(cards));
+          context.pop();
+        }
+
+      },
       child: Scaffold(
         appBar: AppBar(
           leadingWidth: 100,
@@ -178,32 +225,8 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
             Builder(
               builder: (context) {
                 return TextButton(
-                  onPressed: () {
-                    context.read<CardInfoBloc>().add(
-                      SaveCardEvent(
-                        widget.card.copyWith(
-                          name: nameController.text,
-                          number: numberController.text,
-                          label: labelController.text,
-                          color: _colors[_selectedIndexNotifier.value ?? 0],
-                        ),
-                      ),
-                    );
-                    final cards = context.read<HomeBloc>().cards;
-                    final result = cards.indexWhere(
-                      (el) => el.id == widget.card.id,
-                    );
-                    if (result != -1) {
-                      cards[result] = widget.card.copyWith(
-                        name: nameController.text,
-                        number: numberController.text,
-                        label: labelController.text,
-                        color: _colors[_selectedIndexNotifier.value ?? 0],
-                      );
-                      context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-                    }
-                  },
-
+                  onPressed: _saveCard,
+      
                   child: const Text('Save'),
                 );
               },
@@ -237,8 +260,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                               return Container(
                                 width: 200,
                                 height: 150,
-                                color:
-                                    _colors[_selectedIndexNotifier.value ?? 0],
+                                color: _colors[_selectedIndexNotifier.value ?? 0],
                                 child: ValueListenableBuilder(
                                   valueListenable: _selectedLogoNotifier,
                                   builder: (context, file, _) {
@@ -258,9 +280,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                                 sigmaY: 6,
                                               ),
                                               child: Container(
-                                                color: Colors.black.withAlpha(
-                                                  0,
-                                                ),
+                                                color: Colors.black.withAlpha(0),
                                               ),
                                             ),
                                             Image.file(file, fit: BoxFit.cover),
@@ -298,8 +318,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                   ),
                                   TextButton(
                                     onPressed:
-                                        () =>
-                                            _selectedLogoNotifier.value = null,
+                                        () => _selectedLogoNotifier.value = null,
                                     child: const Text('Remove Image'),
                                   ),
                                 ],
@@ -323,8 +342,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                       scrollDirection: Axis.horizontal,
                                       itemCount: 10,
                                       itemBuilder: (context, index) {
-                                        final isSelected =
-                                            selectedIndex == index;
+                                        final isSelected = selectedIndex == index;
                                         return Material(
                                           color: Colors.transparent,
                                           child: InkWell(
@@ -346,7 +364,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                                     shape: BoxShape.circle,
                                                   ),
                                                 ),
-
+      
                                                 Container(
                                                   width: 40,
                                                   height: 40,
@@ -377,21 +395,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        //TODO: Remove test object
-                        context.read<CardInfoBloc>().add(
-                          SaveCardEvent(
-                            CardEntity(
-                              color: const Color.fromARGB(255, 226, 31, 38),
-                              id: 0,
-                              name: 'name_TEST',
-                              number: 'number_TEST',
-                            ),
-                          ),
-                        );
-
-                        context.pop();
-                      },
+                      onPressed: _saveCard,
                       child: const Text('Save'),
                     ),
                   );
@@ -400,7 +404,13 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => context.pop(),
+                  onPressed: () {
+                    context.read<CardInfoBloc>().add(RemoveCardEvent(widget.card.id));
+                    final cards = context.read<HomeBloc>().cards
+                    ..removeWhere((item) => item.id == widget.card.id);
+                    context.read<HomeBloc>().add(UpdateCardsEvent(cards));
+                    context.pop();
+                  },
                   label: const Text('Delete Card'),
                   icon: const Icon(Icons.delete),
                 ),
