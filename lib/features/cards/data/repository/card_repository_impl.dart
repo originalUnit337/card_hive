@@ -115,6 +115,8 @@ class CardRepositoryImpl implements CardRepository {
 
   @override
   Stream<CardEntity?> watchById(int id) {
-    return _cardsService.watchById(id).map((e) => e == null ? null : CardMapper.fromModel(e));
+    return _cardsService
+        .watchById(id)
+        .map((e) => e == null ? null : CardMapper.fromModel(e));
   }
 }

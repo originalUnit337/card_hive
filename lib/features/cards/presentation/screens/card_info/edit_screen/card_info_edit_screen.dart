@@ -8,8 +8,6 @@ import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/car
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_state.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
-import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
-import 'package:card_hive/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -145,7 +143,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     );
     final cards = context.read<HomeBloc>().cards;
     final result = cards.indexWhere((el) => el.id == widget.card.id);
-    // ! if UPDATE card 
+    // ! if UPDATE card
     if (result != -1) {
       cards[result] = widget.card.copyWith(
         name: nameController.text,
@@ -165,7 +163,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
       //   );
       // cards.add(addedCard);
       // context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-        }
+    }
     //context.pop();
   }
 
@@ -212,7 +210,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
           context.read<HomeBloc>().add(UpdateCardsEvent(cards));
           context.pop();
         }
-
       },
       child: Scaffold(
         appBar: AppBar(
@@ -226,7 +223,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
               builder: (context) {
                 return TextButton(
                   onPressed: _saveCard,
-      
+
                   child: const Text('Save'),
                 );
               },
@@ -260,7 +257,8 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                               return Container(
                                 width: 200,
                                 height: 150,
-                                color: _colors[_selectedIndexNotifier.value ?? 0],
+                                color:
+                                    _colors[_selectedIndexNotifier.value ?? 0],
                                 child: ValueListenableBuilder(
                                   valueListenable: _selectedLogoNotifier,
                                   builder: (context, file, _) {
@@ -280,7 +278,9 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                                 sigmaY: 6,
                                               ),
                                               child: Container(
-                                                color: Colors.black.withAlpha(0),
+                                                color: Colors.black.withAlpha(
+                                                  0,
+                                                ),
                                               ),
                                             ),
                                             Image.file(file, fit: BoxFit.cover),
@@ -318,7 +318,8 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                   ),
                                   TextButton(
                                     onPressed:
-                                        () => _selectedLogoNotifier.value = null,
+                                        () =>
+                                            _selectedLogoNotifier.value = null,
                                     child: const Text('Remove Image'),
                                   ),
                                 ],
@@ -342,7 +343,8 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                       scrollDirection: Axis.horizontal,
                                       itemCount: 10,
                                       itemBuilder: (context, index) {
-                                        final isSelected = selectedIndex == index;
+                                        final isSelected =
+                                            selectedIndex == index;
                                         return Material(
                                           color: Colors.transparent,
                                           child: InkWell(
@@ -364,7 +366,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                                     shape: BoxShape.circle,
                                                   ),
                                                 ),
-      
+
                                                 Container(
                                                   width: 40,
                                                   height: 40,
@@ -405,11 +407,16 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    context.read<CardInfoBloc>().add(RemoveCardEvent(widget.card.id));
-                    final cards = context.read<HomeBloc>().cards
-                    ..removeWhere((item) => item.id == widget.card.id);
+                    context.read<CardInfoBloc>().add(
+                      RemoveCardEvent(widget.card.id),
+                    );
+                    final cards =
+                        context.read<HomeBloc>().cards
+                          ..removeWhere((item) => item.id == widget.card.id);
                     context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-                    context.pop();
+                    context
+                      ..pop()
+                      ..pop();
                   },
                   label: const Text('Delete Card'),
                   icon: const Icon(Icons.delete),

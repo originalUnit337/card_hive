@@ -11,8 +11,7 @@ import 'package:logger/logger.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
-  final homeBloc = HomeBloc(getIt(), getIt(), getIt())
-    ..add(const GetAllCardsEvent());
+  final homeBloc = HomeBloc(getIt(), getIt())..add(const GetAllCardsEvent());
   final cardInfoBloc = CardInfoBloc(getIt(), getIt());
   runApp(
     MultiBlocProvider(

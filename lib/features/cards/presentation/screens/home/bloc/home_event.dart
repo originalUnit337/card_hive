@@ -16,17 +16,3 @@ class UpdateCardsEvent extends HomeEvent {
   final List<CardEntity> cards;
   const UpdateCardsEvent(this.cards);
 }
-
-class StartWatchCardsEvent extends HomeEvent {}
-
-class StopWatchCardsEvent extends HomeEvent {}
-
-class InternalWatchData extends HomeEvent {
-  final List<CardEntity> cards;
-  const InternalWatchData(this.cards);
-}
-
-class InternalWatchFailed extends HomeEvent {
-  final Object? error;
-  const InternalWatchFailed(this.error);
-}

@@ -1,10 +1,15 @@
+import 'package:card_hive/features/cards/data/datasources/assets_store_service.dart';
 import 'package:card_hive/features/cards/data/datasources/cards_service.dart';
 import 'package:card_hive/features/cards/data/models/card_model.dart';
 import 'package:card_hive/features/cards/data/repository/card_repository_impl.dart';
+import 'package:card_hive/features/cards/data/repository/store_repository_impl.dart';
 import 'package:card_hive/features/cards/domain/repository/card_repository.dart';
+import 'package:card_hive/features/cards/domain/repository/store_repositry.dart';
 import 'package:card_hive/features/cards/domain/usecases/add_or_update_card_usecase.dart';
 import 'package:card_hive/features/cards/domain/usecases/get_all_cards_usecase.dart';
+import 'package:card_hive/features/cards/domain/usecases/import_store_usecase.dart';
 import 'package:card_hive/features/cards/domain/usecases/remove_card_usecase.dart';
+import 'package:card_hive/features/cards/domain/usecases/search_stores_usecase.dart';
 import 'package:card_hive/features/cards/domain/usecases/watch_all_cards_usecase.dart';
 import 'package:card_hive/objectbox.g.dart';
 import 'package:get_it/get_it.dart';
@@ -25,18 +30,22 @@ Future<void> _initServices() async {
   getIt
     ..registerSingleton<Store>(store)
     ..registerSingleton<Box<CardModel>>(box)
-    ..registerSingleton<CardsService>(CardsService(box));
+    ..registerSingleton<CardsService>(CardsService(box))
+    ..registerSingleton<AssetsStoreService>(AssetsStoreService());
 }
 
 void _initRepositories() {
-  getIt.registerSingleton<CardRepository>(CardRepositoryImpl(getIt(), getIt()));
+  getIt
+    ..registerSingleton<CardRepository>(CardRepositoryImpl(getIt(), getIt()))
+    ..registerSingleton<StoreRepositry>(StoreRepositoryImpl(getIt()));
 }
 
 void _initUseCases() {
-  getIt..registerSingleton<AddOrUpdateCardUsecase>(
-    AddOrUpdateCardUsecase(getIt()),
-  )
-  ..registerSingleton<RemoveCardUsecase>(RemoveCardUsecase(getIt()))
-  ..registerSingleton<GetAllCardsUsecase>(GetAllCardsUsecase(getIt()))
-  ..registerSingleton<WatchAllCardsUsecase>(WatchAllCardsUsecase(getIt()));
+  getIt
+    ..registerSingleton<AddOrUpdateCardUsecase>(AddOrUpdateCardUsecase(getIt()))
+    ..registerSingleton<RemoveCardUsecase>(RemoveCardUsecase(getIt()))
+    ..registerSingleton<GetAllCardsUsecase>(GetAllCardsUsecase(getIt()))
+    ..registerSingleton<WatchAllCardsUsecase>(WatchAllCardsUsecase(getIt()))
+    ..registerSingleton<ImportStoreUsecase>(ImportStoreUsecase(getIt()))
+    ..registerSingleton<SearchStoresUsecase>(SearchStoresUsecase(getIt()));
 }
