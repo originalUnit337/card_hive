@@ -91,7 +91,7 @@ class StoreListScreen extends StatelessWidget {
                             const Text('All cards'),
                           ],
                         ),
-                        StoreListLoading() => const CircularProgressIndicator(),
+                        StoreListLoading() => const Center(child: CircularProgressIndicator()),
                         StoreListLoaded() => Expanded(
                           child: ListView.builder(
                             itemCount: state.stores.length,
@@ -101,6 +101,9 @@ class StoreListScreen extends StatelessWidget {
                                     vertical: 8,
                                   ),
                                   child: ListTile(
+                                    onTap: () {
+                                      context.pop();
+                                    },
                                     leading: ClipRRect(
                                       borderRadius:
                                           BorderRadiusGeometry.circular(10),
