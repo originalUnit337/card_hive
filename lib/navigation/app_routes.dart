@@ -7,8 +7,11 @@ enum AppRoutes {
   cardInfoEdit(path: '/card_info/edit', name: 'cardInfoEdit'),
 
   storeList(path: '/store_list', name: 'storeList'),
-  addCustomCard(path: '/store_list/add_custom_card', name: 'addCustomCard');
-  
+  scannerScreen(path: '/store_list/scanner_screen', name: 'scanner_screen'),
+  addPremadeCard(
+    path: '/store_list/scanner_screen/add_premade_card',
+    name: 'addPremadeCard',
+  );
 
   final String path;
   final String name;

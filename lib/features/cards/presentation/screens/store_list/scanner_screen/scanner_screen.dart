@@ -1,11 +1,13 @@
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
+import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class AddCustomCardScreen extends StatelessWidget {
-  const AddCustomCardScreen({super.key});
+class ScannerScreen extends StatelessWidget {
+  final StoreEntity? store;
+  const ScannerScreen({super.key, this.store});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +46,19 @@ class AddCustomCardScreen extends StatelessWidget {
               child: Material(
                 child: InkWell(
                   onTap: () {
-                    context.push(AppRoutes.cardInfoEdit.path, extra: CardEntity(id: 0, name: '', number: '', color: Colors.white));
+                    if (store == null) {
+                      context.push(
+                        AppRoutes.cardInfoEdit.path,
+                        extra: CardEntity(
+                          id: 0,
+                          name: '',
+                          number: '',
+                          color: Colors.white,
+                        ),
+                      );
+                    } else {
+                      context.push(AppRoutes.addPremadeCard.path, extra: store);
+                    }
                   },
                   child: ListTile(
                     title: Text(

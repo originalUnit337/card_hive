@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:card_hive/core/resources/data_state.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
-import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/features/cards/domain/usecases/get_all_cards_usecase.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
@@ -11,7 +10,6 @@ import 'package:logger/logger.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   List<CardEntity> cards = [];
-  List<StoreEntity> store = [];
   final Logger _logger;
 
   final GetAllCardsUsecase _getAllCardsUsecase;

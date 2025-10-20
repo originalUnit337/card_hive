@@ -1,3 +1,4 @@
+import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/store_list/bloc/store_list_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/store_list/bloc/store_list_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/store_list/bloc/store_list_state.dart';
@@ -62,10 +63,9 @@ class StoreListScreen extends StatelessWidget {
                             ),
                             Material(
                               child: InkWell(
-                                onTap:
-                                    () => context.push(
-                                      AppRoutes.addCustomCard.path,
-                                    ),
+                                onTap: () {
+                                  context.push(AppRoutes.scannerScreen.path);
+                                },
                                 child: Ink(
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
@@ -91,7 +91,9 @@ class StoreListScreen extends StatelessWidget {
                             const Text('All cards'),
                           ],
                         ),
-                        StoreListLoading() => const Center(child: CircularProgressIndicator()),
+                        StoreListLoading() => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                         StoreListLoaded() => Expanded(
                           child: ListView.builder(
                             itemCount: state.stores.length,
@@ -102,7 +104,10 @@ class StoreListScreen extends StatelessWidget {
                                   ),
                                   child: ListTile(
                                     onTap: () {
-                                      context.pop();
+                                      context.push(
+                                        AppRoutes.scannerScreen.path,
+                                        extra: state.stores[index],
+                                      );
                                     },
                                     leading: ClipRRect(
                                       borderRadius:

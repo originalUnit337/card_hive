@@ -1,17 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:card_hive/core/ui_kit/error_screen/error_screen.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
+import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/card_info_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/edit_screen/card_info_edit_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/notes_screen/card_info_note_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/pictures_screen/card_info_pictures_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
-import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/home_screen.dart';
-import 'package:card_hive/features/cards/presentation/screens/store_list/add_custom_card/add_custom_card_screen.dart';
+import 'package:card_hive/features/cards/presentation/screens/store_list/add_premade_card/add_premade_card_screen.dart';
+import 'package:card_hive/features/cards/presentation/screens/store_list/scanner_screen/scanner_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/store_list/store_list_screen.dart';
-import 'package:card_hive/injection_container.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:card_hive/navigation/transitions/app_transitions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -141,16 +141,56 @@ class AppRouter {
         },
         routes: [
           GoRoute(
-            path: AppRoutes.addCustomCard.path.split('/').last,
-            name: AppRoutes.addCustomCard.name,
-            pageBuilder:
-                (context, state) => AppTransitions.getTransitionPage(
-                  const AddCustomCardScreen(),
-                ),
-            builder: (context, state) {
-              _logger.d('Going to AddCustomCardScreen');
-              return const AddCustomCardScreen();
+            path: AppRoutes.scannerScreen.path.split('/').last,
+            name: AppRoutes.scannerScreen.name,
+            pageBuilder: (context, state) {
+              _logger.d('Going to ${AppRoutes.scannerScreen.name}');
+              final extra = state.extra;
+              if (extra is StoreEntity) {
+                return AppTransitions.getTransitionPage(
+                  ScannerScreen(store: extra),
+                );
+              } else {
+                return AppTransitions.getTransitionPage(const ErrorScreen());
+              }
             },
+            builder: (context, state) {
+              _logger.d('Going to ${AppRoutes.scannerScreen.name}');
+              final extra = state.extra;
+              if (extra is StoreEntity) {
+                return ScannerScreen(store: extra);
+              } else {
+                return const ErrorScreen();
+              }
+            },
+            routes: [
+              GoRoute(
+                path: AppRoutes.addPremadeCard.path.split('/').last,
+                name: AppRoutes.addPremadeCard.name,
+                pageBuilder: (context, state) {
+                  _logger.d('Going to ${AppRoutes.addPremadeCard.name}');
+                  final extra = state.extra;
+                  if (extra is StoreEntity) {
+                    return AppTransitions.getTransitionPage(
+                      AddPremadeCardScreen(store: extra),
+                    );
+                  } else {
+                    return AppTransitions.getTransitionPage(
+                      const ErrorScreen(),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  _logger.d('Going to ${AppRoutes.addPremadeCard.name}');
+                  final extra = state.extra;
+                  if (extra is StoreEntity) {
+                    return AddPremadeCardScreen(store: extra);
+                  } else {
+                    return const ErrorScreen();
+                  }
+                },
+              ),
+            ],
           ),
         ],
       ),
