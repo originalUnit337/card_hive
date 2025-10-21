@@ -146,7 +146,7 @@ class AppRouter {
             pageBuilder: (context, state) {
               _logger.d('Going to ${AppRoutes.scannerScreen.name}');
               final extra = state.extra;
-              if (extra is StoreEntity) {
+              if (extra is StoreEntity?) {
                 return AppTransitions.getTransitionPage(
                   ScannerScreen(store: extra),
                 );
