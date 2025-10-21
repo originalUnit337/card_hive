@@ -1,5 +1,7 @@
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
+import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
+import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
 import 'package:card_hive/navigation/app_routes.dart';
@@ -83,6 +85,7 @@ class _BuildGridView extends StatelessWidget {
                 //           ? context.push(AppRoutes.cardInfo.path)
                 //           : null,
                 // );
+                context.read<CardInfoBloc>().add(const ResetCardEvent());
                 context.push(AppRoutes.cardInfo.path, extra: item);
               },
               splashColor: Colors.black54,

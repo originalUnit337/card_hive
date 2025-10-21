@@ -22,3 +22,8 @@ class RemoveCardEvent extends CardInfoEvent {
   final int id;
   const RemoveCardEvent(this.id);
 }
+
+/// Used to force CardInfoBloc to set initial state
+class ResetCardEvent extends CardInfoEvent {
+  const ResetCardEvent();
+}

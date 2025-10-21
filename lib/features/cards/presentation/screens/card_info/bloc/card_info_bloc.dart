@@ -16,6 +16,7 @@ class CardInfoBloc extends Bloc<CardInfoEvent, CardInfoState> {
     : super(const CardInfoInitial()) {
     on<SaveCardEvent>(_saveCard);
     on<RemoveCardEvent>(_removeCard);
+    on<ResetCardEvent>(_resetCard);
   }
 
   FutureOr<void> _saveCard(
@@ -48,5 +49,9 @@ class CardInfoBloc extends Bloc<CardInfoEvent, CardInfoState> {
     } else {
       //TODO: Return some feedback of successful remove
     }
+  }
+
+  FutureOr<void> _resetCard(ResetCardEvent event, Emitter<CardInfoState> emit) {
+    emit(const CardInfoInitial());
   }
 }
