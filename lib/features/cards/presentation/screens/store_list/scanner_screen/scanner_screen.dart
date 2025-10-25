@@ -1,15 +1,19 @@
 import 'dart:io';
 
+import 'package:barcode/barcode.dart';
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' as ms;
+import 'package:path_provider/path_provider.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class ScannerScreen extends StatefulWidget {
   final StoreEntity? store;
@@ -25,11 +29,14 @@ class _ScannerScreenState extends State<ScannerScreen>
     'card_hive/app_settings',
   );
 
-  final MobileScannerController _cameraController = MobileScannerController();
+  final ms.MobileScannerController _cameraController = ms.MobileScannerController();
   final ValueNotifier<bool> _torchOn = ValueNotifier<bool>(false);
 
   bool _hasCameraAccess = true;
   bool _isProcessing = false;
+
+  Uint8List? _bytes;
+  String? _rawSvg;
 
   @override
   void initState() {
@@ -73,7 +80,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     }
   }
 
-  void _onDetect(BarcodeCapture capture) {
+  void _onDetect(ms.BarcodeCapture capture) async {
     if (_isProcessing) return;
     final codes = capture.barcodes;
     if (codes.isEmpty) return;
@@ -81,22 +88,59 @@ class _ScannerScreenState extends State<ScannerScreen>
     if (codeVal.isEmpty) return;
 
     _isProcessing = true;
-    _cameraController.stop();
+    await _cameraController.stop();
 
-    Logger().d('CODE: $codeVal');
-    if (widget.store == null) {
-      context.push(
-        AppRoutes.cardInfoEdit.path,
-        extra: CardEntity(
-          id: 0,
-          name: '',
-          number: codeVal,
-          color: Colors.white,
-        ),
-      );
-    } else {
-      context.push(AppRoutes.addPremadeCard.path, extra: widget.store);
+    final type = capture.barcodes.first.format;
+    
+    Logger().d('CODE: $codeVal, TYPE: $type');
+
+    setState(() {
+      _bytes = codes.first.rawBytes;
+      // Create a DataMatrix barcode
+
+
+      final b = Barcode.fromType(barcodeTypeFromFormat(type)!);
+      _rawSvg = b.toSvg(codeVal);
+      // ignore: avoid_print
+      print(b);
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('CODE: $codeVal, TYPE: $type')));
     }
+    try {} catch (e) {}
+
+    // if (widget.store == null) {
+    //   context.push(
+    //     AppRoutes.cardInfoEdit.path,
+    //     extra: CardEntity(
+    //       id: 0,
+    //       name: '',
+    //       number: codeVal,
+    //       color: Colors.white,
+    //     ),
+    //   );
+    // } else {
+    //   context.push(AppRoutes.addPremadeCard.path, extra: widget.store);
+    // }
+  }
+
+  Future<String> _getSaveDir() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final saveDir = Directory('${dir.path}/barcodes');
+    // ignore: avoid_slow_async_io
+    if (await saveDir.exists()) await saveDir.create(recursive: true);
+    return saveDir.path;
+  }
+
+  Future<File> _saveXFile(XFile xfile) async {
+    final bytes = await xfile.readAsBytes();
+    final dir = await _getSaveDir();
+    final name = 'barcode_${DateTime.now().toIso8601String()}.jpg';
+    final file = File('$dir/$name');
+    return file.writeAsBytes(bytes, flush: true);
   }
 
   Future<void> _pickImageAndDecode() async {
@@ -119,6 +163,30 @@ class _ScannerScreenState extends State<ScannerScreen>
     }
   }
 
+  Widget _buildSvgPicture(BuildContext context, Uint8List bytes) {
+    // ignore: avoid_print
+    print(bytes);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.amber),
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+      ),
+       child: SvgPicture.string(_rawSvg!, height: 100),
+      
+    );
+    // return DecoratedBox(
+    //   decoration: BoxDecoration(
+    //     border: Border.all(color: Colors.amber),
+    //     borderRadius: BorderRadius.circular(10),
+    //   ),
+    //   child: SvgPicture.network(
+    //     'https://www.svgrepo.com/show/535115/alien.svg',
+    //     height: 100,
+    //   ),
+    // );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPalette = AppPalette.of(context);
@@ -129,6 +197,7 @@ class _ScannerScreenState extends State<ScannerScreen>
         child: Column(
           spacing: 15,
           children: [
+            if (_bytes != null) _buildSvgPicture(context, _bytes!),
             // ClipRRect(
             //   borderRadius: BorderRadiusGeometry.circular(15),
             //   child: Container(
@@ -161,7 +230,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                     _hasCameraAccess
                         ? Stack(
                           children: [
-                            MobileScanner(
+                            ms.MobileScanner(
                               controller: _cameraController,
                               onDetect: _onDetect,
                             ),
@@ -302,5 +371,39 @@ class _ScannerScreenState extends State<ScannerScreen>
         ),
       ),
     );
+  }
+}
+
+BarcodeType? barcodeTypeFromFormat(ms.BarcodeFormat fmt) {
+  switch (fmt) {
+    case ms.BarcodeFormat.itf:
+      return BarcodeType.Itf;
+    case ms.BarcodeFormat.code128:
+      return BarcodeType.Code128;
+    case ms.BarcodeFormat.code39:
+      return BarcodeType.Code39;
+    case ms.BarcodeFormat.code93:
+      return BarcodeType.Code93;
+    case ms.BarcodeFormat.codabar:
+      return BarcodeType.Codabar;
+    case ms.BarcodeFormat.dataMatrix:
+      return BarcodeType.DataMatrix;
+    case ms.BarcodeFormat.ean13:
+      return BarcodeType.CodeEAN13;
+    case ms.BarcodeFormat.ean8:
+      return BarcodeType.CodeEAN8;
+    case ms.BarcodeFormat.qrCode:
+      return BarcodeType.QrCode;
+    case ms.BarcodeFormat.upcA:
+      return BarcodeType.CodeUPCA;
+    case ms.BarcodeFormat.upcE:
+      return BarcodeType.CodeUPCE;
+    case ms.BarcodeFormat.pdf417:
+      return BarcodeType.PDF417;
+    case ms.BarcodeFormat.aztec:
+      return BarcodeType.Aztec;
+    case ms.BarcodeFormat.unknown:
+    case ms.BarcodeFormat.all:
+      return null;
   }
 }
