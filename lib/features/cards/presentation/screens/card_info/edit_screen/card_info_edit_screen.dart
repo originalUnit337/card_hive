@@ -204,9 +204,13 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     return BlocListener<CardInfoBloc, CardInfoState>(
       listener: (context, state) {
         if (state is CardInfoLoaded) {
-          final addedCard = context.read<CardInfoBloc>().card;
+          final addedCardOrEditedCard = context.read<CardInfoBloc>().card;
           final cards = context.read<HomeBloc>().cards;
-          if (addedCard != null) cards.add(addedCard);
+          final result = cards.indexWhere(
+            (el) => el.id == addedCardOrEditedCard?.id,
+          );
+          if (addedCardOrEditedCard != null && result == -1)
+            cards.add(addedCardOrEditedCard);
           context.read<HomeBloc>().add(UpdateCardsEvent(cards));
           context.pop();
         }
