@@ -209,8 +209,9 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
           final result = cards.indexWhere(
             (el) => el.id == addedCardOrEditedCard?.id,
           );
-          if (addedCardOrEditedCard != null && result == -1)
+          if (addedCardOrEditedCard != null && result == -1) {
             cards.add(addedCardOrEditedCard);
+          }
           context.read<HomeBloc>().add(UpdateCardsEvent(cards));
           context.pop();
         }
@@ -255,52 +256,67 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                         const Text('Design'),
                         ClipRRect(
                           borderRadius: BorderRadiusGeometry.circular(10),
-                          child: ValueListenableBuilder(
-                            valueListenable: _selectedIndexNotifier,
-                            builder: (context, value, child) {
-                              return Container(
-                                width: 200,
-                                height: 150,
-                                color:
-                                    _colors[_selectedIndexNotifier.value ?? 0],
-                                child: ValueListenableBuilder(
-                                  valueListenable: _selectedLogoNotifier,
-                                  builder: (context, file, _) {
-                                    if (file != null) {
-                                      return ClipRRect(
-                                        borderRadius:
-                                            BorderRadiusGeometry.circular(10),
-                                        child: Stack(
-                                          fit: StackFit.expand,
-                                          children: [
-                                            Container(
-                                              color: Colors.grey.shade300,
-                                            ),
-                                            BackdropFilter(
-                                              filter: ImageFilter.blur(
-                                                sigmaX: 6,
-                                                sigmaY: 6,
-                                              ),
-                                              child: Container(
-                                                color: Colors.black.withAlpha(
-                                                  0,
+                          child:
+                              widget.card.logoPath != null
+                                  ? Image.asset(
+                                    'assets/logos/${widget.card.logoPath}',
+                                  )
+                                  : ValueListenableBuilder(
+                                    valueListenable: _selectedIndexNotifier,
+                                    builder: (context, value, child) {
+                                      return Container(
+                                        width: 200,
+                                        height: 150,
+                                        color:
+                                            _colors[_selectedIndexNotifier
+                                                    .value ??
+                                                0],
+                                        child: ValueListenableBuilder(
+                                          valueListenable:
+                                              _selectedLogoNotifier,
+                                          builder: (context, file, _) {
+                                            if (file != null) {
+                                              return ClipRRect(
+                                                borderRadius:
+                                                    BorderRadiusGeometry.circular(
+                                                      10,
+                                                    ),
+                                                child: Stack(
+                                                  fit: StackFit.expand,
+                                                  children: [
+                                                    Container(
+                                                      color:
+                                                          Colors.grey.shade300,
+                                                    ),
+                                                    BackdropFilter(
+                                                      filter: ImageFilter.blur(
+                                                        sigmaX: 6,
+                                                        sigmaY: 6,
+                                                      ),
+                                                      child: Container(
+                                                        color: Colors.black
+                                                            .withAlpha(0),
+                                                      ),
+                                                    ),
+                                                    Image.file(
+                                                      file,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                            ),
-                                            Image.file(file, fit: BoxFit.cover),
-                                          ],
+                                              );
+                                            } else {
+                                              return const Center(
+                                                child: Text(
+                                                  'No image selected',
+                                                ),
+                                              );
+                                            }
+                                          },
                                         ),
                                       );
-                                    } else {
-                                      return const Center(
-                                        child: Text('No image selected'),
-                                      );
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                                    },
+                                  ),
                         ),
                         ValueListenableBuilder(
                           valueListenable: _selectedLogoNotifier,

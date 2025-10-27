@@ -6,7 +6,7 @@ class CardEntity {
   String? label;
   String number;
   String? logoPath;
-  String? barcodePath;
+  String? rawBarcodeSvg;
   String? backPath;
   String? frontPath;
   String? note;
@@ -19,7 +19,7 @@ class CardEntity {
     required this.color,
     this.label,
     this.logoPath,
-    this.barcodePath,
+    this.rawBarcodeSvg,
     this.backPath,
     this.frontPath,
     this.note,
@@ -44,7 +44,7 @@ class CardEntity {
       number: number ?? this.number,
       color: color ?? this.color,
       logoPath: logoPath ?? this.logoPath,
-      barcodePath: barcodePath ?? this.barcodePath,
+      rawBarcodeSvg: barcodePath ?? rawBarcodeSvg,
       backPath: backPath ?? this.backPath,
       frontPath: frontPath ?? this.frontPath,
       note: note ?? this.note,

@@ -12,7 +12,8 @@ import 'package:go_router/go_router.dart';
 
 class AddPremadeCardScreen extends StatefulWidget {
   final StoreEntity store;
-  const AddPremadeCardScreen({required this.store, super.key});
+  final CardEntity? card;
+  const AddPremadeCardScreen({required this.store, this.card, super.key});
 
   @override
   State<AddPremadeCardScreen> createState() => _AddPremadeCardScreenState();
@@ -20,6 +21,12 @@ class AddPremadeCardScreen extends StatefulWidget {
 
 class _AddPremadeCardScreenState extends State<AddPremadeCardScreen> {
   final TextEditingController _numberController = TextEditingController();
+
+  @override
+  void initState() {
+    _numberController.text = widget.card?.number ?? '';
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -109,6 +116,8 @@ class _AddPremadeCardScreenState extends State<AddPremadeCardScreen> {
       name: widget.store.name,
       number: _numberController.text.trim(),
       color: widget.store.colorValue,
+      logoPath: widget.store.logoReference,
+      rawBarcodeSvg: widget.card?.rawBarcodeSvg,
     );
     context.read<CardInfoBloc>().add(SaveCardEvent(card));
     // final addedCard = context.read<CardInfoBloc>().card;

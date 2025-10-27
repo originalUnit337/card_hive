@@ -170,6 +170,13 @@ class AppRouter {
                 pageBuilder: (context, state) {
                   _logger.d('Going to ${AppRoutes.addPremadeCard.name}');
                   final extra = state.extra;
+                  if (extra is Map && extra['store'] is StoreEntity) {
+                    final store = extra['store'] as StoreEntity;
+                    final card = extra['card'] as CardEntity?;
+                    return AppTransitions.getTransitionPage(
+                      AddPremadeCardScreen(store: store, card: card),
+                    );
+                  }
                   if (extra is StoreEntity) {
                     return AppTransitions.getTransitionPage(
                       AddPremadeCardScreen(store: extra),
@@ -183,6 +190,11 @@ class AppRouter {
                 builder: (context, state) {
                   _logger.d('Going to ${AppRoutes.addPremadeCard.name}');
                   final extra = state.extra;
+                  if (extra is Map && extra['store'] is StoreEntity) {
+                    final store = extra['store'] as StoreEntity;
+                    final card = extra['card'] as CardEntity?;
+                    return AddPremadeCardScreen(store: store, card: card);
+                  }
                   if (extra is StoreEntity) {
                     return AddPremadeCardScreen(store: extra);
                   } else {

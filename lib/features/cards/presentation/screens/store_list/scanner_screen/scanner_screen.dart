@@ -13,7 +13,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' as ms;
 import 'package:path_provider/path_provider.dart';
-import 'package:vector_graphics/vector_graphics.dart';
 
 class ScannerScreen extends StatefulWidget {
   final StoreEntity? store;
@@ -29,13 +28,14 @@ class _ScannerScreenState extends State<ScannerScreen>
     'card_hive/app_settings',
   );
 
-  final ms.MobileScannerController _cameraController = ms.MobileScannerController();
+  final ms.MobileScannerController _cameraController =
+      ms.MobileScannerController();
   final ValueNotifier<bool> _torchOn = ValueNotifier<bool>(false);
 
+  static const chan = MethodChannel('card_hive/app_settings');
   bool _hasCameraAccess = true;
   bool _isProcessing = false;
 
-  Uint8List? _bytes;
   String? _rawSvg;
 
   @override
@@ -47,8 +47,15 @@ class _ScannerScreenState extends State<ScannerScreen>
 
   Future<void> _startCamera() async {
     try {
-      await _cameraController.start();
-      setState(() => _hasCameraAccess = true);
+      final status = await chan.invokeMethod('checkPermission', {
+        'permission': 'android.permission.CAMERA',
+      });
+      if (status == 'denied') {
+        setState(() => _hasCameraAccess = false);
+      } else {
+        await _cameraController.start();
+        setState(() => _hasCameraAccess = true);
+      }
     } catch (e) {
       setState(() => _hasCameraAccess = false);
     }
@@ -64,6 +71,13 @@ class _ScannerScreenState extends State<ScannerScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    chan
+        .invokeMethod('checkPermission', {
+          'permission': 'android.permission.CAMERA',
+        })
+        .then(
+          (onValue) => setState(() => _hasCameraAccess = onValue == 'granted'),
+        );
     if (!_hasCameraAccess) return;
     if (state == AppLifecycleState.paused) {
       _cameraController.stop();
@@ -80,7 +94,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     }
   }
 
-  void _onDetect(ms.BarcodeCapture capture) async {
+  Future<void> _onDetect(ms.BarcodeCapture capture) async {
     if (_isProcessing) return;
     final codes = capture.barcodes;
     if (codes.isEmpty) return;
@@ -91,18 +105,12 @@ class _ScannerScreenState extends State<ScannerScreen>
     await _cameraController.stop();
 
     final type = capture.barcodes.first.format;
-    
+
     Logger().d('CODE: $codeVal, TYPE: $type');
 
     setState(() {
-      _bytes = codes.first.rawBytes;
-      // Create a DataMatrix barcode
-
-
       final b = Barcode.fromType(barcodeTypeFromFormat(type)!);
       _rawSvg = b.toSvg(codeVal);
-      // ignore: avoid_print
-      print(b);
     });
 
     if (mounted) {
@@ -110,21 +118,36 @@ class _ScannerScreenState extends State<ScannerScreen>
         context,
       ).showSnackBar(SnackBar(content: Text('CODE: $codeVal, TYPE: $type')));
     }
-    try {} catch (e) {}
 
-    // if (widget.store == null) {
-    //   context.push(
-    //     AppRoutes.cardInfoEdit.path,
-    //     extra: CardEntity(
-    //       id: 0,
-    //       name: '',
-    //       number: codeVal,
-    //       color: Colors.white,
-    //     ),
-    //   );
-    // } else {
-    //   context.push(AppRoutes.addPremadeCard.path, extra: widget.store);
-    // }
+    if (widget.store == null && mounted) {
+      await context.push(
+        AppRoutes.cardInfoEdit.path,
+        extra: CardEntity(
+          id: 0,
+          name: '',
+          number: codeVal,
+          color: Colors.white,
+          rawBarcodeSvg: _rawSvg,
+        ),
+      );
+    } else {
+      if (mounted) {
+        await context.push(
+          AppRoutes.addPremadeCard.path,
+          extra: {
+            'store': widget.store,
+            'card': CardEntity(
+              id: 0,
+              name: widget.store?.name ?? '',
+              number: codeVal,
+              color: widget.store?.colorValue ?? Colors.white,
+              rawBarcodeSvg: _rawSvg,
+              logoPath: widget.store?.logoReference,
+            ),
+          },
+        );
+      }
+    }
   }
 
   Future<String> _getSaveDir() async {
@@ -150,41 +173,27 @@ class _ScannerScreenState extends State<ScannerScreen>
 
     setState(() => _isProcessing = true);
     try {
-      final bytes = await file.readAsBytes();
-      // Декодирование из изображения опущено (см. предыдущие замечания)
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Image picked (decoding not implemented)'),
           ),
         );
+      }
     } finally {
       setState(() => _isProcessing = false);
     }
   }
 
-  Widget _buildSvgPicture(BuildContext context, Uint8List bytes) {
-    // ignore: avoid_print
-    print(bytes);
+  Widget _buildSvgPicture(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.amber),
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
       ),
-       child: SvgPicture.string(_rawSvg!, height: 100),
-      
+      child: SvgPicture.string(_rawSvg!, height: 100),
     );
-    // return DecoratedBox(
-    //   decoration: BoxDecoration(
-    //     border: Border.all(color: Colors.amber),
-    //     borderRadius: BorderRadius.circular(10),
-    //   ),
-    //   child: SvgPicture.network(
-    //     'https://www.svgrepo.com/show/535115/alien.svg',
-    //     height: 100,
-    //   ),
-    // );
   }
 
   @override
@@ -197,29 +206,7 @@ class _ScannerScreenState extends State<ScannerScreen>
         child: Column(
           spacing: 15,
           children: [
-            if (_bytes != null) _buildSvgPicture(context, _bytes!),
-            // ClipRRect(
-            //   borderRadius: BorderRadiusGeometry.circular(15),
-            //   child: Container(
-            //     height: 500,
-            //     width: double.infinity,
-            //     color: Colors.black,
-            //     child: Column(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         const Text(
-            //           'Grant access in\nSettings to continue scanning',
-            //           style: TextStyle(color: Colors.white, fontSize: 20),
-            //           textAlign: TextAlign.center,
-            //         ),
-            //         ElevatedButton(
-            //           onPressed: () {},
-            //           child: const Text('Open Settings'),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
+            // ? if (_bytes != null) _buildSvgPicture(context),
             ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: Container(
@@ -240,7 +227,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                                 height: 160,
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     width: 2,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
@@ -254,7 +241,6 @@ class _ScannerScreenState extends State<ScannerScreen>
                                 children: [
                                   IconButton(
                                     onPressed: () {
-                                      // переключаем фонарь на камере (void) и обновляем локальный флаг
                                       _cameraController.toggleTorch();
                                       _torchOn.value = !_torchOn.value;
                                     },
@@ -271,8 +257,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                                     ),
                                   ),
                                   IconButton(
-                                    onPressed:
-                                        () => _cameraController.switchCamera(),
+                                    onPressed: _cameraController.switchCamera,
                                     icon: const Icon(
                                       Icons.cameraswitch,
                                       color: Colors.white,

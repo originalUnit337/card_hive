@@ -6,6 +6,7 @@ import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/car
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/web.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -125,7 +126,13 @@ class _BuildInfoScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Image.asset('assets/bar_codes/test_image.png'),
+                    DecoratedBox(
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: SvgPicture.string(
+                        currentCard?.rawBarcodeSvg ?? '',
+                        height: 100,
+                      ),
+                    ),
                     Center(
                       child: Text(
                         currentCard?.number ?? '',

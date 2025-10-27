@@ -93,7 +93,10 @@ class _BuildGridView extends StatelessWidget {
               splashFactory: InkRipple.splashFactory,
               child: Ink(
                 decoration: BoxDecoration(color: item.color),
-                child: Center(child: Text(item.name)),
+                child:
+                    item.logoPath != null
+                        ? Image.asset('assets/logos/${item.logoPath}')
+                        : Center(child: Text(item.name)),
               ),
             ),
           ),
