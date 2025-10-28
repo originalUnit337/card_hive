@@ -29,7 +29,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   );
 
   final ms.MobileScannerController _cameraController =
-      ms.MobileScannerController();
+      ms.MobileScannerController(autoStart: false);
   final ValueNotifier<bool> _torchOn = ValueNotifier<bool>(false);
 
   static const chan = MethodChannel('card_hive/app_settings');
@@ -45,15 +45,15 @@ class _ScannerScreenState extends State<ScannerScreen>
     _startCamera();
   }
 
-  Future<void> _startCamera() async {
+  void _startCamera() {
     try {
-      final status = await chan.invokeMethod('checkPermission', {
+      dynamic status = chan.invokeMethod('checkPermission', {
         'permission': 'android.permission.CAMERA',
       });
       if (status == 'denied') {
         setState(() => _hasCameraAccess = false);
       } else {
-        await _cameraController.start();
+        _cameraController.start();
         setState(() => _hasCameraAccess = true);
       }
     } catch (e) {
