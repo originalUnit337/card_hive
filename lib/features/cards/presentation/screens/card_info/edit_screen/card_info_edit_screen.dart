@@ -30,6 +30,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
   final ValueNotifier<File?> _selectedLogoNotifier = ValueNotifier<File?>(null);
 
   late final TextEditingController nameController;
+  final ValueNotifier<String> _nameValue = ValueNotifier('');
   late final TextEditingController numberController;
   late final TextEditingController labelController;
 
@@ -111,7 +112,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
         imageQuality: 85,
       );
       if (picked != null) _selectedLogoNotifier.value = File(picked.path);
-    } catch (e) {
     } finally {
       if (context.mounted) context.pop();
     }
@@ -124,7 +124,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
         imageQuality: 85,
       );
       if (picked != null) _selectedLogoNotifier.value = File(picked.path);
-    } catch (e) {
     } finally {
       if (context.mounted) context.pop();
     }
@@ -134,7 +133,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     context.read<CardInfoBloc>().add(
       SaveCardEvent(
         widget.card.copyWith(
-          name: nameController.text,
+          name: nameController.value.text,
           number: numberController.text,
           label: labelController.text,
           color: _colors[_selectedIndexNotifier.value ?? 0],
@@ -146,7 +145,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     // ! if UPDATE card
     if (result != -1) {
       cards[result] = widget.card.copyWith(
-        name: nameController.text,
+        name: nameController.value.text,
         number: numberController.text,
         label: labelController.text,
         color: _colors[_selectedIndexNotifier.value ?? 0],
@@ -154,17 +153,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
       context.read<HomeBloc>().add(UpdateCardsEvent(cards));
     }
     // ! if ADD new card
-    else {
-      // final addedCard = widget.card.copyWith(
-      //     name: nameController.text,
-      //     number: numberController.text,
-      //     label: labelController.text,
-      //     color: _colors[_selectedIndexNotifier.value ?? 0],
-      //   );
-      // cards.add(addedCard);
-      // context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-    }
-    //context.pop();
   }
 
   void _showImageSourceDialog(BuildContext context) {
@@ -248,7 +236,12 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                     child: Column(
                       children: [
                         const Text('Card name'),
-                        TextFormField(controller: nameController),
+                        TextFormField(
+                          controller: nameController,
+                          onChanged: (value) {
+                            _nameValue.value = value;
+                          },
+                        ),
                         const Text('Card Number'),
                         TextFormField(controller: numberController),
                         const Text('Label'),
@@ -306,10 +299,17 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                                 ),
                                               );
                                             } else {
-                                              return const Center(
-                                                child: Text(
-                                                  'No image selected',
-                                                ),
+                                              return ValueListenableBuilder(
+                                                valueListenable: _nameValue,
+                                                builder: (
+                                                  context,
+                                                  value,
+                                                  child,
+                                                ) {
+                                                  return Center(
+                                                    child: Text(value),
+                                                  );
+                                                },
                                               );
                                             }
                                           },
@@ -427,16 +427,42 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    context.read<CardInfoBloc>().add(
-                      RemoveCardEvent(widget.card.id),
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text(
+                            'Are you sure you want to delete this card ?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                context.pop();
+                              },
+                              child: const Text('CANCEL'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                context.read<CardInfoBloc>().add(
+                                  RemoveCardEvent(widget.card.id),
+                                );
+                                final cards =
+                                    context.read<HomeBloc>().cards..removeWhere(
+                                      (item) => item.id == widget.card.id,
+                                    );
+                                context.read<HomeBloc>().add(
+                                  UpdateCardsEvent(cards),
+                                );
+                                context
+                                  ..pop()
+                                  ..pop();
+                              },
+                              child: const Text('DELETE CARD'),
+                            ),
+                          ],
+                        );
+                      },
                     );
-                    final cards =
-                        context.read<HomeBloc>().cards
-                          ..removeWhere((item) => item.id == widget.card.id);
-                    context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-                    context
-                      ..pop()
-                      ..pop();
                   },
                   label: const Text('Delete Card'),
                   icon: const Icon(Icons.delete),
