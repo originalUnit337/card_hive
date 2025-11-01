@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:barcode/barcode.dart';
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
@@ -132,6 +133,8 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
   }
 
   void _saveCard() {
+    var rawBarcodeSvg = widget.card.rawBarcodeSvg;
+    rawBarcodeSvg ??= Barcode.code128().toSvg(widget.card.number);
     context.read<CardInfoBloc>().add(
       SaveCardEvent(
         widget.card.copyWith(
@@ -139,6 +142,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
           number: numberController.text,
           label: labelController.text,
           color: _colors[_selectedIndexNotifier.value ?? 0],
+          rawBarcodeSvg: rawBarcodeSvg,
         ),
       ),
     );
@@ -151,6 +155,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
         number: numberController.text,
         label: labelController.text,
         color: _colors[_selectedIndexNotifier.value ?? 0],
+        rawBarcodeSvg: rawBarcodeSvg,
       );
       context.read<HomeBloc>().add(UpdateCardsEvent(cards));
     }

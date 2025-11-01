@@ -8,6 +8,7 @@ import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -71,6 +72,7 @@ class _BuildGridView extends StatelessWidget {
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
+        Logger().d('barcode svg: ${items[index].rawBarcodeSvg}');
         final item = items[index];
         return ClipRRect(
           borderRadius: BorderRadiusGeometry.circular(20),

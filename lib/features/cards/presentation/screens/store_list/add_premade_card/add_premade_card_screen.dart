@@ -1,3 +1,4 @@
+import 'package:barcode/barcode.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
@@ -111,13 +112,15 @@ class _AddPremadeCardScreenState extends State<AddPremadeCardScreen> {
     //     color: Colors.white,
     //   ),
     // );
+    var rawBarcodeSvg = widget.card?.rawBarcodeSvg;
+    rawBarcodeSvg ??= Barcode.code128().toSvg(_numberController.text.trim());
     final card = CardEntity(
       id: 0,
       name: widget.store.name,
       number: _numberController.text.trim(),
       color: widget.store.colorValue,
       logoPath: widget.store.logoReference,
-      rawBarcodeSvg: widget.card?.rawBarcodeSvg,
+      rawBarcodeSvg: rawBarcodeSvg,
     );
     context.read<CardInfoBloc>().add(SaveCardEvent(card));
     // final addedCard = context.read<CardInfoBloc>().card;
