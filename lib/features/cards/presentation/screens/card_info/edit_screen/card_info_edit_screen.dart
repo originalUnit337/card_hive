@@ -36,6 +36,8 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -215,8 +217,11 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
             Builder(
               builder: (context) {
                 return TextButton(
-                  onPressed: _saveCard,
-
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _saveCard();
+                    }
+                  },
                   child: const Text('Save'),
                 );
               },
@@ -230,7 +235,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Form(
-                  key: GlobalKey<FormState>(),
+                  key: _formKey,
                   child: ColoredBox(
                     color: currentPalette.appBarbackground,
                     child: Column(
@@ -241,9 +246,23 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                           onChanged: (value) {
                             _nameValue.value = value;
                           },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Field cannot be empty';
+                            }
+                            return null;
+                          },
                         ),
                         const Text('Card Number'),
-                        TextFormField(controller: numberController),
+                        TextFormField(
+                          controller: numberController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Field cannot be empty';
+                            }
+                            return null;
+                          },
+                        ),
                         const Text('Label'),
                         TextFormField(controller: labelController),
                         const Text('Design'),
@@ -417,7 +436,11 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _saveCard,
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _saveCard();
+                        }
+                      },
                       child: const Text('Save'),
                     ),
                   );
