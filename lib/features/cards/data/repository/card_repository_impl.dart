@@ -18,10 +18,10 @@ class CardRepositoryImpl implements CardRepository {
       _logger.i('getAll result: ${result.length}');
       for (final i in result) {
         _logger.i(
-          'id: ${i.id} name: ${i.name} number: ${i.number} color: ${i.colorValue} label: ${i.label} logoPath: ${i.logoPath} barcodePath: ${i.barcodePath} backPath: ${i.backPath} frontPath: ${i.frontPath} note: ${i.note}',
+          'id: ${i.id} name: ${i.name} number: ${i.number} color: ${i.colorValue} label: ${i.label} logoPath: ${i.logoPath} barcodePath: ${i.rawBarcodeSvg} backPath: ${i.backPath} frontPath: ${i.frontPath} note: ${i.note}',
         );
       }
-      return DataSuccess(result.map((e) => CardMapper.fromModel(e)).toList());
+      return DataSuccess(result.map(CardMapper.fromModel).toList());
     } catch (e) {
       _logger.e('Error getAll $e');
       if (e is Exception) {
@@ -71,7 +71,7 @@ class CardRepositoryImpl implements CardRepository {
     try {
       _logger.d('Enter putMany');
       return await _cardsService.putMany(
-        models.map((e) => CardMapper.toModel(e)).toList(),
+        models.map(CardMapper.toModel).toList(),
       );
     } catch (e) {
       _logger.e('Error putMany $e');
@@ -99,7 +99,7 @@ class CardRepositoryImpl implements CardRepository {
     try {
       _logger.d('Enter searchByNameOrNumber');
       final result = await _cardsService.searchByNameOrNumber(query);
-      return result.map((e) => CardMapper.fromModel(e)).toList();
+      return result.map(CardMapper.fromModel).toList();
     } catch (e) {
       _logger.e('Error searchByNameOrNumber $e');
       rethrow;

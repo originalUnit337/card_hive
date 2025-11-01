@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 62870931500109938),
     name: 'CardModel',
-    lastPropertyId: const obx_int.IdUid(7, 731865282394944071),
+    lastPropertyId: const obx_int.IdUid(11, 8101734927521726296),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -67,6 +67,24 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(7, 731865282394944071),
         name: 'colorValue',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 1208346016047545545),
+        name: 'frontPath',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 59566892973957703),
+        name: 'backPath',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 8101734927521726296),
+        name: 'rawBarcodeSvg',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -119,7 +137,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [],
+    retiredPropertyUids: const [8595677417465576809],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -147,7 +165,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final noteOffset = object.note == null
             ? null
             : fbb.writeString(object.note!);
-        fbb.startTable(8);
+        final frontPathOffset = object.frontPath == null
+            ? null
+            : fbb.writeString(object.frontPath!);
+        final backPathOffset = object.backPath == null
+            ? null
+            : fbb.writeString(object.backPath!);
+        final rawBarcodeSvgOffset = object.rawBarcodeSvg == null
+            ? null
+            : fbb.writeString(object.rawBarcodeSvg!);
+        fbb.startTable(12);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addOffset(2, labelOffset);
@@ -155,6 +182,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(4, logoPathOffset);
         fbb.addOffset(5, noteOffset);
         fbb.addInt64(6, object.colorValue);
+        fbb.addOffset(8, frontPathOffset);
+        fbb.addOffset(9, backPathOffset);
+        fbb.addOffset(10, rawBarcodeSvgOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -170,32 +200,44 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final nameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 6, '');
-        final labelParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 8);
         final numberParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 10, '');
-        final logoPathParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 12);
-        final noteParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 14);
         final colorValueParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
           16,
           0,
         );
+        final labelParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 8);
+        final logoPathParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 12);
+        final rawBarcodeSvgParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 24);
+        final frontPathParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 20);
+        final backPathParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 22);
+        final noteParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 14);
         final object = CardModel(
           id: idParam,
           name: nameParam,
-          label: labelParam,
           number: numberParam,
-          logoPath: logoPathParam,
-          note: noteParam,
           colorValue: colorValueParam,
+          label: labelParam,
+          logoPath: logoPathParam,
+          rawBarcodeSvg: rawBarcodeSvgParam,
+          frontPath: frontPathParam,
+          backPath: backPathParam,
+          note: noteParam,
         );
 
         return object;
@@ -241,5 +283,20 @@ class CardModel_ {
   /// See [CardModel.colorValue].
   static final colorValue = obx.QueryIntegerProperty<CardModel>(
     _entities[0].properties[6],
+  );
+
+  /// See [CardModel.frontPath].
+  static final frontPath = obx.QueryStringProperty<CardModel>(
+    _entities[0].properties[7],
+  );
+
+  /// See [CardModel.backPath].
+  static final backPath = obx.QueryStringProperty<CardModel>(
+    _entities[0].properties[8],
+  );
+
+  /// See [CardModel.rawBarcodeSvg].
+  static final rawBarcodeSvg = obx.QueryStringProperty<CardModel>(
+    _entities[0].properties[9],
   );
 }

@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:62870931500109938",
-      "lastPropertyId": "7:731865282394944071",
+      "lastPropertyId": "11:8101734927521726296",
       "name": "CardModel",
       "properties": [
         {
@@ -47,6 +47,21 @@
           "id": "7:731865282394944071",
           "name": "colorValue",
           "type": 6
+        },
+        {
+          "id": "9:1208346016047545545",
+          "name": "frontPath",
+          "type": 9
+        },
+        {
+          "id": "10:59566892973957703",
+          "name": "backPath",
+          "type": 9
+        },
+        {
+          "id": "11:8101734927521726296",
+          "name": "rawBarcodeSvg",
+          "type": 9
         }
       ],
       "relations": []
@@ -60,7 +75,9 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    8595677417465576809
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

@@ -12,7 +12,7 @@ class AssetsStoreService {
   Future<List<StoreEntity>> loadAll() async {
     if (_cache != null) return _cache!;
     final raw = await rootBundle.loadString(assetPath);
-    final List<dynamic> arr = jsonDecode(raw) as List<dynamic>;
+    final arr = jsonDecode(raw) as List<dynamic>;
     _cache =
         arr
             .map((e) => StoreEntity.fromJson(e as Map<String, dynamic>))

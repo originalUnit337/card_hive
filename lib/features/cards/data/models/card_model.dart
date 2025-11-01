@@ -15,7 +15,7 @@ class CardModel {
 
   String? logoPath;
 
-  String? barcodePath;
+  String? rawBarcodeSvg;
 
   String? frontPath;
 
@@ -32,7 +32,7 @@ class CardModel {
     required this.colorValue,
     this.label,
     this.logoPath,
-    this.barcodePath,
+    this.rawBarcodeSvg,
     this.frontPath,
     this.backPath,
     this.note,

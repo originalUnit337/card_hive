@@ -30,10 +30,13 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
   final ValueNotifier<File?> _selectedLogoNotifier = ValueNotifier<File?>(null);
 
   late final TextEditingController nameController;
+  final ValueNotifier<String> _nameValue = ValueNotifier('');
   late final TextEditingController numberController;
   late final TextEditingController labelController;
 
   final ImagePicker _picker = ImagePicker();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -111,7 +114,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
         imageQuality: 85,
       );
       if (picked != null) _selectedLogoNotifier.value = File(picked.path);
-    } catch (e) {
     } finally {
       if (context.mounted) context.pop();
     }
@@ -124,7 +126,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
         imageQuality: 85,
       );
       if (picked != null) _selectedLogoNotifier.value = File(picked.path);
-    } catch (e) {
     } finally {
       if (context.mounted) context.pop();
     }
@@ -134,7 +135,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     context.read<CardInfoBloc>().add(
       SaveCardEvent(
         widget.card.copyWith(
-          name: nameController.text,
+          name: nameController.value.text,
           number: numberController.text,
           label: labelController.text,
           color: _colors[_selectedIndexNotifier.value ?? 0],
@@ -146,7 +147,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     // ! if UPDATE card
     if (result != -1) {
       cards[result] = widget.card.copyWith(
-        name: nameController.text,
+        name: nameController.value.text,
         number: numberController.text,
         label: labelController.text,
         color: _colors[_selectedIndexNotifier.value ?? 0],
@@ -154,17 +155,6 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
       context.read<HomeBloc>().add(UpdateCardsEvent(cards));
     }
     // ! if ADD new card
-    else {
-      // final addedCard = widget.card.copyWith(
-      //     name: nameController.text,
-      //     number: numberController.text,
-      //     label: labelController.text,
-      //     color: _colors[_selectedIndexNotifier.value ?? 0],
-      //   );
-      // cards.add(addedCard);
-      // context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-    }
-    //context.pop();
   }
 
   void _showImageSourceDialog(BuildContext context) {
@@ -204,9 +194,14 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     return BlocListener<CardInfoBloc, CardInfoState>(
       listener: (context, state) {
         if (state is CardInfoLoaded) {
-          final addedCard = context.read<CardInfoBloc>().card;
+          final addedCardOrEditedCard = context.read<CardInfoBloc>().card;
           final cards = context.read<HomeBloc>().cards;
-          if (addedCard != null) cards.add(addedCard);
+          final result = cards.indexWhere(
+            (el) => el.id == addedCardOrEditedCard?.id,
+          );
+          if (addedCardOrEditedCard != null && result == -1) {
+            cards.add(addedCardOrEditedCard);
+          }
           context.read<HomeBloc>().add(UpdateCardsEvent(cards));
           context.pop();
         }
@@ -222,8 +217,11 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
             Builder(
               builder: (context) {
                 return TextButton(
-                  onPressed: _saveCard,
-
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _saveCard();
+                    }
+                  },
                   child: const Text('Save'),
                 );
               },
@@ -237,66 +235,107 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Form(
-                  key: GlobalKey<FormState>(),
+                  key: _formKey,
                   child: ColoredBox(
                     color: currentPalette.appBarbackground,
                     child: Column(
                       children: [
                         const Text('Card name'),
-                        TextFormField(controller: nameController),
+                        TextFormField(
+                          controller: nameController,
+                          onChanged: (value) {
+                            _nameValue.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Field cannot be empty';
+                            }
+                            return null;
+                          },
+                        ),
                         const Text('Card Number'),
-                        TextFormField(controller: numberController),
+                        TextFormField(
+                          controller: numberController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Field cannot be empty';
+                            }
+                            return null;
+                          },
+                        ),
                         const Text('Label'),
                         TextFormField(controller: labelController),
                         const Text('Design'),
                         ClipRRect(
                           borderRadius: BorderRadiusGeometry.circular(10),
-                          child: ValueListenableBuilder(
-                            valueListenable: _selectedIndexNotifier,
-                            builder: (context, value, child) {
-                              return Container(
-                                width: 200,
-                                height: 150,
-                                color:
-                                    _colors[_selectedIndexNotifier.value ?? 0],
-                                child: ValueListenableBuilder(
-                                  valueListenable: _selectedLogoNotifier,
-                                  builder: (context, file, _) {
-                                    if (file != null) {
-                                      return ClipRRect(
-                                        borderRadius:
-                                            BorderRadiusGeometry.circular(10),
-                                        child: Stack(
-                                          fit: StackFit.expand,
-                                          children: [
-                                            Container(
-                                              color: Colors.grey.shade300,
-                                            ),
-                                            BackdropFilter(
-                                              filter: ImageFilter.blur(
-                                                sigmaX: 6,
-                                                sigmaY: 6,
-                                              ),
-                                              child: Container(
-                                                color: Colors.black.withAlpha(
-                                                  0,
+                          child:
+                              widget.card.logoPath != null
+                                  ? Image.asset(
+                                    'assets/logos/${widget.card.logoPath}',
+                                  )
+                                  : ValueListenableBuilder(
+                                    valueListenable: _selectedIndexNotifier,
+                                    builder: (context, value, child) {
+                                      return Container(
+                                        width: 200,
+                                        height: 150,
+                                        color:
+                                            _colors[_selectedIndexNotifier
+                                                    .value ??
+                                                0],
+                                        child: ValueListenableBuilder(
+                                          valueListenable:
+                                              _selectedLogoNotifier,
+                                          builder: (context, file, _) {
+                                            if (file != null) {
+                                              return ClipRRect(
+                                                borderRadius:
+                                                    BorderRadiusGeometry.circular(
+                                                      10,
+                                                    ),
+                                                child: Stack(
+                                                  fit: StackFit.expand,
+                                                  children: [
+                                                    Container(
+                                                      color:
+                                                          Colors.grey.shade300,
+                                                    ),
+                                                    BackdropFilter(
+                                                      filter: ImageFilter.blur(
+                                                        sigmaX: 6,
+                                                        sigmaY: 6,
+                                                      ),
+                                                      child: Container(
+                                                        color: Colors.black
+                                                            .withAlpha(0),
+                                                      ),
+                                                    ),
+                                                    Image.file(
+                                                      file,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                            ),
-                                            Image.file(file, fit: BoxFit.cover),
-                                          ],
+                                              );
+                                            } else {
+                                              return ValueListenableBuilder(
+                                                valueListenable: _nameValue,
+                                                builder: (
+                                                  context,
+                                                  value,
+                                                  child,
+                                                ) {
+                                                  return Center(
+                                                    child: Text(value),
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          },
                                         ),
                                       );
-                                    } else {
-                                      return const Center(
-                                        child: Text('No image selected'),
-                                      );
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                                    },
+                                  ),
                         ),
                         ValueListenableBuilder(
                           valueListenable: _selectedLogoNotifier,
@@ -397,7 +436,11 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _saveCard,
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _saveCard();
+                        }
+                      },
                       child: const Text('Save'),
                     ),
                   );
@@ -407,16 +450,42 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    context.read<CardInfoBloc>().add(
-                      RemoveCardEvent(widget.card.id),
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text(
+                            'Are you sure you want to delete this card ?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                context.pop();
+                              },
+                              child: const Text('CANCEL'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                context.read<CardInfoBloc>().add(
+                                  RemoveCardEvent(widget.card.id),
+                                );
+                                final cards =
+                                    context.read<HomeBloc>().cards..removeWhere(
+                                      (item) => item.id == widget.card.id,
+                                    );
+                                context.read<HomeBloc>().add(
+                                  UpdateCardsEvent(cards),
+                                );
+                                context
+                                  ..pop()
+                                  ..pop();
+                              },
+                              child: const Text('DELETE CARD'),
+                            ),
+                          ],
+                        );
+                      },
                     );
-                    final cards =
-                        context.read<HomeBloc>().cards
-                          ..removeWhere((item) => item.id == widget.card.id);
-                    context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-                    context
-                      ..pop()
-                      ..pop();
                   },
                   label: const Text('Delete Card'),
                   icon: const Icon(Icons.delete),

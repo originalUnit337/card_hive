@@ -17,6 +17,24 @@ class StoreEntity {
     this.logoAspectRatio,
   });
 
+  StoreEntity copyWith({
+    String? id,
+    String? name,
+    String? region,
+    String? logoReference,
+    double? logoAspectRatio,
+    Color? colorValue,
+  }) {
+    return StoreEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      region: region ?? this.region,
+      logoReference: logoReference ?? this.logoReference,
+      logoAspectRatio: logoAspectRatio ?? this.logoAspectRatio,
+      colorValue: colorValue ?? this.colorValue,
+    );
+  }
+
   factory StoreEntity.fromJson(Map<String, dynamic> j) {
     final c = (j['color'] ?? {}) as Map<String, dynamic>;
     final a = (c['A'] as int? ?? 255) & 0xFF;
