@@ -7,6 +7,7 @@ import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_state.dart';
+import 'package:card_hive/features/cards/presentation/screens/card_info/edit_screen/widgets/logo_colors.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +30,10 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     _closestColorIndexStatic(widget.card.color),
   );
 
-  final ValueNotifier<File?> _selectedLogoNotifier = ValueNotifier<File?>(null);
+  late final ValueNotifier<File?> _selectedLogoNotifier;
 
   late final TextEditingController nameController;
-  final ValueNotifier<String> _nameValue = ValueNotifier('');
+  late final ValueNotifier<String> _nameValue;
   late final TextEditingController numberController;
   late final TextEditingController labelController;
 
@@ -46,6 +47,13 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
     nameController = TextEditingController(text: widget.card.name);
     numberController = TextEditingController(text: widget.card.number);
     labelController = TextEditingController(text: widget.card.label ?? '');
+
+    _nameValue = ValueNotifier(widget.card.name);
+    if (widget.card.logoPath != null) {
+      _selectedLogoNotifier = ValueNotifier<File?>(File(widget.card.logoPath!));
+    } else {
+      _selectedLogoNotifier = ValueNotifier<File?>(null);
+    }
   }
 
   static int _closestColorIndexStatic(Color target) {
@@ -154,7 +162,10 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
 
   void _saveCard() {
     var rawBarcodeSvg = widget.card.rawBarcodeSvg;
-    rawBarcodeSvg ??= Barcode.code128().toSvg(widget.card.number);
+    rawBarcodeSvg ??= Barcode.code128().toSvg(numberController.text);
+    if (_selectedLogoNotifier.value == null && widget.card.logoPath != null) {
+      File(widget.card.logoPath!).delete();
+    }
     context.read<CardInfoBloc>().add(
       SaveCardEvent(
         widget.card.copyWith(
@@ -163,6 +174,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
           label: labelController.text,
           color: _colors[_selectedIndexNotifier.value ?? 0],
           rawBarcodeSvg: rawBarcodeSvg,
+          logoPathSet: true,
           logoPath: _selectedLogoNotifier.value?.path,
         ),
       ),
@@ -177,6 +189,7 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
         label: labelController.text,
         color: _colors[_selectedIndexNotifier.value ?? 0],
         rawBarcodeSvg: rawBarcodeSvg,
+        logoPathSet: true,
         logoPath: _selectedLogoNotifier.value?.path,
       );
       context.read<HomeBloc>().add(UpdateCardsEvent(cards));
@@ -297,99 +310,83 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                           const Text('Design'),
                           ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(10),
-                            child:
-                                widget.card.logoPath != null
-                                    ? Image.asset(
-                                      'assets/logos/${widget.card.logoPath}',
-                                      errorBuilder: (
-                                        context,
-                                        error,
-                                        stackTrace,
-                                      ) {
-                                        return Image.file(
-                                          File(widget.card.logoPath!),
-                                        );
-                                      },
-                                    )
-                                    : ValueListenableBuilder(
-                                      valueListenable: _selectedIndexNotifier,
-                                      builder: (context, value, child) {
-                                        return Container(
-                                          width: 200,
-                                          height: 150,
-                                          color:
-                                              _colors[_selectedIndexNotifier
-                                                      .value ??
-                                                  0],
-                                          child: ValueListenableBuilder(
-                                            valueListenable:
-                                                _selectedLogoNotifier,
-                                            builder: (context, file, _) {
-                                              if (file != null) {
-                                                return ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadiusGeometry.circular(
-                                                        10,
-                                                      ),
-                                                  child: Stack(
-                                                    fit: StackFit.expand,
-                                                    children: [
-                                                      Container(
-                                                        color:
-                                                            Colors
-                                                                .grey
-                                                                .shade300,
-                                                      ),
-                                                      BackdropFilter(
-                                                        filter:
-                                                            ImageFilter.blur(
-                                                              sigmaX: 6,
-                                                              sigmaY: 6,
-                                                            ),
-                                                        child: Container(
-                                                          color: Colors.black
-                                                              .withAlpha(0),
-                                                        ),
-                                                      ),
-                                                      Image.file(
-                                                        file,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ],
+                            child: ValueListenableBuilder(
+                              valueListenable: _selectedIndexNotifier,
+                              builder: (context, value, child) {
+                                return Container(
+                                  width: 200,
+                                  height: 150,
+                                  color:
+                                      _colors[_selectedIndexNotifier.value ??
+                                          0],
+                                  child: ValueListenableBuilder(
+                                    valueListenable: _selectedLogoNotifier,
+                                    builder: (context, file, _) {
+                                      if (file != null) {
+                                        return ClipRRect(
+                                          borderRadius:
+                                              BorderRadiusGeometry.circular(10),
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              Container(
+                                                color: Colors.grey.shade300,
+                                              ),
+                                              BackdropFilter(
+                                                filter: ImageFilter.blur(
+                                                  sigmaX: 6,
+                                                  sigmaY: 6,
+                                                ),
+                                                child: Container(
+                                                  color: Colors.black.withAlpha(
+                                                    0,
                                                   ),
-                                                );
-                                              } else {
-                                                return ValueListenableBuilder(
-                                                  valueListenable: _nameValue,
-                                                  builder: (
-                                                    context,
-                                                    value,
-                                                    child,
-                                                  ) {
-                                                    return Center(
-                                                      child: Text(value),
-                                                    );
-                                                  },
-                                                );
-                                              }
-                                            },
+                                                ),
+                                              ),
+                                              Image.file(
+                                                file,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ],
                                           ),
                                         );
-                                      },
-                                    ),
+                                      } else {
+                                        return ValueListenableBuilder(
+                                          valueListenable: _nameValue,
+                                          builder: (context, value, child) {
+                                            return Center(child: Text(value));
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                           ValueListenableBuilder(
                             valueListenable: _selectedLogoNotifier,
                             builder: (context, value, child) {
                               if (_selectedLogoNotifier.value == null) {
-                                return TextButton(
-                                  onPressed: () {
-                                    _showImageSourceDialog(context);
-                                  },
-                                  child: const Text('Add Custom Logo'),
+                                return Column(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        _showImageSourceDialog(context);
+                                      },
+                                      child: const Text('Add Custom Logo'),
+                                    ),
+                                    LogoColors(
+                                      currentPalette: currentPalette,
+                                      selectedIndexNotifier:
+                                          _selectedIndexNotifier,
+                                      colors: _colors,
+                                    ),
+                                  ],
                                 );
                               } else {
                                 return Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     TextButton(
                                       onPressed:
@@ -397,76 +394,15 @@ class _CardInfoEditScreenState extends State<CardInfoEditScreen> {
                                       child: const Text('Change Image'),
                                     ),
                                     TextButton(
-                                      onPressed:
-                                          () =>
-                                              _selectedLogoNotifier.value =
-                                                  null,
+                                      onPressed: () async {
+                                        _selectedLogoNotifier.value = null;
+                                      },
                                       child: const Text('Remove Image'),
                                     ),
                                   ],
                                 );
                               }
                             },
-                          ),
-                          Padding(
-                            padding: const EdgeInsetsGeometry.all(10),
-                            child: ClipRRect(
-                              borderRadius: BorderRadiusGeometry.circular(10),
-                              child: Container(
-                                height: 70,
-                                color: currentPalette.background,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: ValueListenableBuilder<int?>(
-                                    valueListenable: _selectedIndexNotifier,
-                                    builder: (context, selectedIndex, _) {
-                                      return ListView.builder(
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount: 10,
-                                        itemBuilder: (context, index) {
-                                          final isSelected =
-                                              selectedIndex == index;
-                                          return Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              onTap: () {
-                                                _selectedIndexNotifier.value =
-                                                    index;
-                                              },
-                                              child: Stack(
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  Container(
-                                                    width: 50,
-                                                    height: 50,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          isSelected
-                                                              ? Colors.white
-                                                              : Colors.black,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                  ),
-
-                                                  Container(
-                                                    width: 40,
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                      color: _colors[index],
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
                           ),
                         ],
                       ),

@@ -106,7 +106,7 @@ class _BuildGridView extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (item.logoPath != null)
+                    if (item.logoPath != null && item.logoPath!.isNotEmpty)
                       Image.asset(
                         'assets/logos/${item.logoPath}',
                         errorBuilder: (context, error, stackTrace) {
@@ -118,7 +118,6 @@ class _BuildGridView extends StatelessWidget {
                       )
                     else
                       Container(color: item.color),
-                    // размытие фона
                     if (customLogo ?? false)
                       ClipRRect(
                         borderRadius: BorderRadiusGeometry.circular(20),
@@ -126,14 +125,11 @@ class _BuildGridView extends StatelessWidget {
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                           child: Container(),
                         ),
-                      ), // полупрозрачный слой того же цвета (можно заменить на доминантный цвет)
-                    // Container(color: item.color.withValues(alpha: 0.35)),
-                    // контент сверху
-                    //if (customLogo ?? false)
+                      ),
                     if (customLogo == null || customLogo)
                       Center(
                         child:
-                            item.logoPath != null
+                            item.logoPath != null && item.logoPath!.isNotEmpty
                                 ? Image.asset(
                                   'assets/logos/${item.logoPath}',
                                   errorBuilder: (context, error, stackTrace) {
@@ -150,17 +146,6 @@ class _BuildGridView extends StatelessWidget {
                       ),
                   ],
                 ),
-                // item.logoPath != null
-                //     ? Image.asset(
-                //       'assets/logos/${item.logoPath}',
-                //       errorBuilder: (context, error, stackTrace) {
-                //         return BackdropFilter(
-                //           filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                //           child: Image.file(File(item.logoPath!)),
-                //         );
-                //       },
-                //     )
-                //     : Center(child: Text(item.name)),
               ),
             ),
           ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/core/ui_kit/palette/palette.dart';
@@ -126,7 +127,8 @@ class _BuildInfoScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child:
-                          currentCard?.logoPath == null
+                          currentCard?.logoPath == null ||
+                                  currentCard!.logoPath!.isEmpty
                               ? Center(
                                 child: Text(
                                   currentCard?.name ?? '',
@@ -137,13 +139,49 @@ class _BuildInfoScreen extends StatelessWidget {
                                   ),
                                 ),
                               )
-                              : Image.asset(
-                                'assets/logos/${currentCard?.logoPath}',
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.file(
-                                    File(currentCard!.logoPath!),
-                                  );
-                                },
+                              : ClipRRect(
+                                borderRadius: BorderRadiusGeometry.circular(10),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Image.asset(
+                                      'assets/logos/${currentCard?.logoPath}',
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Image.file(
+                                          File(currentCard!.logoPath!),
+                                          fit: BoxFit.cover,
+                                        );
+                                      },
+                                    ),
+                                    BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                        sigmaX: 6,
+                                        sigmaY: 6,
+                                      ),
+                                      child: Container(
+                                        color: Colors.black.withAlpha(0),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Image.asset(
+                                        'assets/logos/${currentCard?.logoPath}',
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Image.file(
+                                            File(currentCard!.logoPath!),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                     ),
                     DecoratedBox(

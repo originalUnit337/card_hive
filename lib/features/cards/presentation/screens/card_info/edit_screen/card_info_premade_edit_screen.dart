@@ -5,7 +5,6 @@ import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_state.dart';
-import 'package:card_hive/features/cards/presentation/screens/card_info/card_info_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:flutter/material.dart';
@@ -89,42 +88,47 @@ class _CardInfoPremadeEditScreenState extends State<CardInfoPremadeEditScreen> {
         ),
         body: Padding(
           padding: const EdgeInsetsGeometry.all(15),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadiusGeometry.circular(10),
-                child: Form(
-                  child: ColoredBox(
-                    color: currentPalette.appBarbackground,
-                    child: Column(
-                      spacing: 12,
-                      children: [
-                        if (customLogo ?? false)
-                          Image.file(File(widget.card.logoPath!))
-                        else
-                          Image.asset('assets/logos/${widget.card.logoPath}'),
-                        const Text('Card Number'),
-                        TextFormField(controller: _numberController),
-                        const Text('Label'),
-                        TextFormField(controller: _labelController),
-                        TextButton(
-                          onPressed: _saveCard,
-                          child: const Text('Save'),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [Icon(Icons.delete), Text('Delete Card')],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadiusGeometry.circular(10),
+                  child: Form(
+                    child: ColoredBox(
+                      color: currentPalette.appBarbackground,
+                      child: Column(
+                        spacing: 12,
+                        children: [
+                          if (customLogo ?? false)
+                            Image.file(File(widget.card.logoPath!))
+                          else
+                            Image.asset('assets/logos/${widget.card.logoPath}'),
+                          const Text('Card Number'),
+                          TextFormField(controller: _numberController),
+                          const Text('Label'),
+                          TextFormField(controller: _labelController),
+                          TextButton(
+                            onPressed: _saveCard,
+                            child: const Text('Save'),
                           ),
-                        ),
-                      ],
+                          TextButton(
+                            onPressed: () {},
+                            child: const Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.delete),
+                                Text('Delete Card'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
