@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
@@ -74,6 +77,10 @@ class _BuildGridView extends StatelessWidget {
       itemBuilder: (context, index) {
         Logger().d('barcode svg: ${items[index].rawBarcodeSvg}');
         final item = items[index];
+        //! null - no logo
+        //! true - custom logo
+        //! false - premade logo
+        final customLogo = item.logoPath?.contains('logo_');
         return ClipRRect(
           borderRadius: BorderRadiusGeometry.circular(20),
 
@@ -88,6 +95,7 @@ class _BuildGridView extends StatelessWidget {
                 //           : null,
                 // );
                 context.read<CardInfoBloc>().add(const ResetCardEvent());
+
                 context.push(AppRoutes.cardInfo.path, extra: item);
               },
               splashColor: Colors.black54,
@@ -95,10 +103,64 @@ class _BuildGridView extends StatelessWidget {
               splashFactory: InkRipple.splashFactory,
               child: Ink(
                 decoration: BoxDecoration(color: item.color),
-                child:
-                    item.logoPath != null
-                        ? Image.asset('assets/logos/${item.logoPath}')
-                        : Center(child: Text(item.name)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (item.logoPath != null)
+                      Image.asset(
+                        'assets/logos/${item.logoPath}',
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.file(
+                            File(item.logoPath!),
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    else
+                      Container(color: item.color),
+                    // размытие фона
+                    if (customLogo ?? false)
+                      ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(20),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                          child: Container(),
+                        ),
+                      ), // полупрозрачный слой того же цвета (можно заменить на доминантный цвет)
+                    // Container(color: item.color.withValues(alpha: 0.35)),
+                    // контент сверху
+                    //if (customLogo ?? false)
+                    if (customLogo == null || customLogo)
+                      Center(
+                        child:
+                            item.logoPath != null
+                                ? Image.asset(
+                                  'assets/logos/${item.logoPath}',
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.file(File(item.logoPath!));
+                                  },
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.contain,
+                                )
+                                : Text(
+                                  item.name,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                      ),
+                  ],
+                ),
+                // item.logoPath != null
+                //     ? Image.asset(
+                //       'assets/logos/${item.logoPath}',
+                //       errorBuilder: (context, error, stackTrace) {
+                //         return BackdropFilter(
+                //           filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                //           child: Image.file(File(item.logoPath!)),
+                //         );
+                //       },
+                //     )
+                //     : Center(child: Text(item.name)),
               ),
             ),
           ),

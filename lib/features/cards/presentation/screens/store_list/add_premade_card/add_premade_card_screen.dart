@@ -35,6 +35,20 @@ class _AddPremadeCardScreenState extends State<AddPremadeCardScreen> {
     super.dispose();
   }
 
+  void _saveCard() {
+    var rawBarcodeSvg = widget.card?.rawBarcodeSvg;
+    rawBarcodeSvg ??= Barcode.code128().toSvg(_numberController.text.trim());
+    final card = CardEntity(
+      id: 0,
+      name: widget.store.name,
+      number: _numberController.text.trim(),
+      color: widget.store.colorValue,
+      logoPath: widget.store.logoReference,
+      rawBarcodeSvg: rawBarcodeSvg,
+    );
+    context.read<CardInfoBloc>().add(SaveCardEvent(card));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<CardInfoBloc, CardInfoState>(
@@ -46,8 +60,10 @@ class _AddPremadeCardScreenState extends State<AddPremadeCardScreen> {
           context.read<HomeBloc>().add(UpdateCardsEvent(cards));
           context.go(AppRoutes.homeRoute.path);
           Future.microtask(
-            // ignore: use_build_context_synchronously
-            () => context.push(AppRoutes.cardInfo.path, extra: addedCard),
+            () =>
+                context.mounted
+                    ? context.push(AppRoutes.cardInfo.path, extra: addedCard)
+                    : null,
           );
         }
       },
@@ -91,45 +107,5 @@ class _AddPremadeCardScreenState extends State<AddPremadeCardScreen> {
         ),
       ),
     );
-  }
-
-  void _saveCard() {
-    // final numberText = _numberController.text.trim();
-    // final card = CardEntity(
-    //   id: 0,
-    //   name: widget.store.name,
-    //   number: numberText,
-    //   color: widget.store.colorValue,
-    //   logoPath: 'assets/logos/${widget.store.logoReference}',
-    // );
-    // context.read<CardInfoBloc>().add(SaveCardEvent(card));
-    // context.go(
-    //   AppRoutes.cardInfo.path,
-    //   extra: CardEntity(
-    //     id: 0,
-    //     name: 'test',
-    //     number: 'test number',
-    //     color: Colors.white,
-    //   ),
-    // );
-    var rawBarcodeSvg = widget.card?.rawBarcodeSvg;
-    rawBarcodeSvg ??= Barcode.code128().toSvg(_numberController.text.trim());
-    final card = CardEntity(
-      id: 0,
-      name: widget.store.name,
-      number: _numberController.text.trim(),
-      color: widget.store.colorValue,
-      logoPath: widget.store.logoReference,
-      rawBarcodeSvg: rawBarcodeSvg,
-    );
-    context.read<CardInfoBloc>().add(SaveCardEvent(card));
-    // final addedCard = context.read<CardInfoBloc>().card;
-    // final cards = context.read<HomeBloc>().cards..add(addedCard!);
-    // context.read<HomeBloc>().add(UpdateCardsEvent(cards));
-    // context.go(AppRoutes.homeRoute.path);
-    // Future.microtask(
-    //   // ignore: use_build_context_synchronously
-    //   () => context.push(AppRoutes.cardInfo.path, extra: card),
-    // );
   }
 }

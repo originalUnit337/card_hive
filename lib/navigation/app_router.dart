@@ -5,6 +5,7 @@ import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/card_info_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/edit_screen/card_info_edit_screen.dart';
+import 'package:card_hive/features/cards/presentation/screens/card_info/edit_screen/card_info_premade_edit_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/notes_screen/card_info_note_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/pictures_screen/card_info_pictures_screen.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
@@ -205,6 +206,30 @@ class AppRouter {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.cardInfoPremadeEdit.path,
+        name: AppRoutes.cardInfoPremadeEdit.name,
+        pageBuilder: (context, state) {
+          _logger.d('Going to card info premade edit screen');
+          final extra = state.extra;
+          if (extra is CardEntity) {
+            return AppTransitions.getTransitionPage(
+              CardInfoPremadeEditScreen(card: extra),
+            );
+          } else {
+            return AppTransitions.getTransitionPage(const ErrorScreen());
+          }
+        },
+        builder: (context, state) {
+          _logger.d('Going to card info premade edit screen');
+          final extra = state.extra;
+          if (extra is CardEntity) {
+            return CardInfoPremadeEditScreen(card: extra);
+          } else {
+            return const ErrorScreen();
+          }
+        },
       ),
     ],
   );

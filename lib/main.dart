@@ -6,6 +6,7 @@ import 'package:card_hive/injection_container.dart';
 import 'package:card_hive/navigation/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
 void main() async {
@@ -13,13 +14,19 @@ void main() async {
   await initializeDependencies();
   final homeBloc = HomeBloc(getIt(), getIt())..add(const GetAllCardsEvent());
   final cardInfoBloc = CardInfoBloc(getIt(), getIt());
+  final config = AppRouter(Logger(), homeBloc, cardInfoBloc).router;
+
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider.value(value: homeBloc),
         BlocProvider.value(value: cardInfoBloc),
       ],
-      child: MainApp(homeBloc: homeBloc, cardInfoBloc: cardInfoBloc),
+      child: MainApp(
+        homeBloc: homeBloc,
+        cardInfoBloc: cardInfoBloc,
+        config: config,
+      ),
     ),
   );
 }
@@ -27,9 +34,11 @@ void main() async {
 class MainApp extends StatelessWidget {
   final HomeBloc homeBloc;
   final CardInfoBloc cardInfoBloc;
+  final GoRouter config;
   const MainApp({
     required this.homeBloc,
     required this.cardInfoBloc,
+    required this.config,
     super.key,
   });
 
@@ -38,7 +47,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp.router(
       theme: AppTheme.lightAppTheme,
       darkTheme: AppTheme.darkAppTheme,
-      routerConfig: AppRouter(Logger(), homeBloc, cardInfoBloc).router,
+      routerConfig: config,
     );
   }
 }

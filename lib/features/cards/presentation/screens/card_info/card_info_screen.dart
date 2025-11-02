@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/core/ui_kit/palette/palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
@@ -45,11 +47,20 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
         //backgroundColor: currentPalette.appBarbackground,
         actions: [
           TextButton(
-            onPressed:
-                () => context.push(
-                  AppRoutes.cardInfoEdit.path,
+            onPressed: () {
+              //! null - no logo
+              //! true - custom logo
+              //! false - premade logo
+              final customLogo = currentCard?.logoPath?.contains('logo_');
+              if (customLogo ?? false || customLogo == null) {
+                context.push(AppRoutes.cardInfoEdit.path, extra: currentCard);
+              } else {
+                context.push(
+                  AppRoutes.cardInfoPremadeEdit.path,
                   extra: currentCard,
-                ),
+                );
+              }
+            },
             child: Text(
               'Edit',
               style: TextStyle(
@@ -114,17 +125,26 @@ class _BuildInfoScreen extends StatelessWidget {
                         color: currentCard?.color,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      // ? logo here if exist
-                      child: Center(
-                        child: Text(
-                          currentCard?.name ?? '',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      child:
+                          currentCard?.logoPath == null
+                              ? Center(
+                                child: Text(
+                                  currentCard?.name ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                              : Image.asset(
+                                'assets/logos/${currentCard?.logoPath}',
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.file(
+                                    File(currentCard!.logoPath!),
+                                  );
+                                },
+                              ),
                     ),
                     DecoratedBox(
                       decoration: const BoxDecoration(color: Colors.white),

@@ -5,6 +5,10 @@ enum AppRoutes {
   cardInfoNotes(path: '/card_info/notes', name: 'cardInfoNotes'),
   cardInfoPictures(path: '/card_info/pictures', name: 'cardInfoPictures'),
   cardInfoEdit(path: '/card_info/edit', name: 'cardInfoEdit'),
+  cardInfoPremadeEdit(
+    path: '/card_info_premade/edit',
+    name: 'cardInfoPremadeEdit',
+  ),
 
   storeList(path: '/store_list', name: 'storeList'),
   scannerScreen(path: '/store_list/scanner_screen', name: 'scanner_screen'),
