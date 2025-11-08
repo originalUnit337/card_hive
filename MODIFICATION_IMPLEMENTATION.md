@@ -6,6 +6,7 @@ This document outlines the phased implementation plan for adding the Google Driv
 
 *   **Phase 1:** Tried to run `flutter test` but it failed because the `test` directory was not found. This is not a blocker, as I will create the directory and tests in the upcoming phases. Added `google_sign_in` and `googleapis` dependencies successfully.
 *   **Phase 1:** Ran `analyze_files` and found several issues, including `strict_raw_type`, `unused_element`, `avoid_catches_without_on_clauses`, and `unused_field`. Fixed all the issues and verified with `analyze_files` again. All tests passed after the fixes.
+*   **Phase 2:** Created the domain layer for the backup feature, including the `BackupRepository` interface and the `BackupUseCase`, `RestoreUseCase`, and `GetLastBackupTimeUseCase`.
 
 ## Phase 1: Project Setup and Initial Tests
 
@@ -18,17 +19,17 @@ This document outlines the phased implementation plan for adding the Google Driv
 - [x] Run any tests to make sure they all pass.
 - [x] Run `dart_format` to make sure that the formatting is correct.
 - [x] Re-read the `MODIFICATION_IMPLEMENTATION.md` file to see what, if anything, has changed in the implementation plan, and if it has changed, take care of anything the changes imply.
-- [ ] Update the `MODIFICATION_IMPLEMENTATION.md` file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
-- [ ] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
-- [ ] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
-- [ ] After commiting the change, if an app is running, use the `hot_reload` tool to reload it.
+- [x] Update the `MODIFICATION_IMPLEMENTATION.md` file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
+- [x] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
+- [x] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
+- [x] After commiting the change, if an app is running, use the `hot_reload` tool to reload it.
 
 ## Phase 2: Domain Layer
 
-- [ ] Create the `BackupRepository` interface in `lib/features/backup/domain/repositories/backup_repository.dart`.
-- [ ] Create the `BackupUseCase` in `lib/features/backup/domain/usecases/backup_usecase.dart`.
-- [ ] Create the `RestoreUseCase` in `lib/features/backup/domain/usecases/restore_usecase.dart`.
-- [ ] Create the `GetLastBackupTimeUseCase` in `lib/features/backup/domain/usecases/get_last_backup_time_usecase.dart`.
+- [x] Create the `BackupRepository` interface in `lib/features/backup/domain/repositories/backup_repository.dart`.
+- [x] Create the `BackupUseCase` in `lib/features/backup/domain/usecases/backup_usecase.dart`.
+- [x] Create the `RestoreUseCase` in `lib/features/backup/domain/usecases/restore_usecase.dart`.
+- [x] Create the `GetLastBackupTimeUseCase` in `lib/features/backup/domain/usecases/get_last_backup_time_usecase.dart`.
 - [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
 - [ ] Run the `dart_fix` tool to clean up the code.
 - [ ] Run the `analyze_files` tool one more time and fix any issues.
