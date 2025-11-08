@@ -22,13 +22,9 @@ class CardRepositoryImpl implements CardRepository {
         );
       }
       return DataSuccess(result.map(CardMapper.fromModel).toList());
-    } catch (e) {
-      _logger.e('Error getAll $e');
-      if (e is Exception) {
-        return DataFailed(e);
-      } else {
-        return DataFailed(Exception(e));
-      }
+    } on Exception catch (e, s) {
+      _logger.e('Error getAll', error: e, stackTrace: s);
+      return DataFailed(e);
     }
   }
 
@@ -38,8 +34,8 @@ class CardRepositoryImpl implements CardRepository {
       _logger.d('Enter getById');
       final result = await _cardsService.getById(id);
       return result == null ? null : CardMapper.fromModel(result);
-    } catch (e) {
-      _logger.e('Error getById $e');
+    } on Exception catch (e, s) {
+      _logger.e('Error getById', error: e, stackTrace: s);
       rethrow;
     }
   }
@@ -56,13 +52,9 @@ class CardRepositoryImpl implements CardRepository {
         _logger.e('Error putCard $result');
         return DataFailed(Exception('error: $result was not >= 0'));
       }
-    } catch (e) {
-      _logger.e('Error putCard $e');
-      if (e is Exception) {
-        return DataFailed(e);
-      } else {
-        return DataFailed(Exception('error: $e'));
-      }
+    } on Exception catch (e, s) {
+      _logger.e('Error putCard', error: e, stackTrace: s);
+      return DataFailed(e);
     }
   }
 
@@ -73,8 +65,8 @@ class CardRepositoryImpl implements CardRepository {
       return await _cardsService.putMany(
         models.map(CardMapper.toModel).toList(),
       );
-    } catch (e) {
-      _logger.e('Error putMany $e');
+    } on Exception catch (e, s) {
+      _logger.e('Error putMany', error: e, stackTrace: s);
       rethrow;
     }
   }
@@ -84,13 +76,9 @@ class CardRepositoryImpl implements CardRepository {
     try {
       final result = await _cardsService.remove(id);
       return DataSuccess(result);
-    } catch (e) {
-      _logger.e('Error remove $e');
-      if (e is Exception) {
-        return DataFailed(e);
-      } else {
-        return DataFailed(Exception('error: $e'));
-      }
+    } on Exception catch (e, s) {
+      _logger.e('Error remove', error: e, stackTrace: s);
+      return DataFailed(e);
     }
   }
 
@@ -100,8 +88,8 @@ class CardRepositoryImpl implements CardRepository {
       _logger.d('Enter searchByNameOrNumber');
       final result = await _cardsService.searchByNameOrNumber(query);
       return result.map(CardMapper.fromModel).toList();
-    } catch (e) {
-      _logger.e('Error searchByNameOrNumber $e');
+    } on Exception catch (e, s) {
+      _logger.e('Error searchByNameOrNumber', error: e, stackTrace: s);
       rethrow;
     }
   }

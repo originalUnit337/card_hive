@@ -7,19 +7,14 @@ import 'package:card_hive/features/cards/domain/usecases/import_store_usecase.da
 import 'package:card_hive/features/cards/domain/usecases/search_stores_usecase.dart';
 import 'package:card_hive/features/cards/presentation/screens/store_list/bloc/store_list_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/store_list/bloc/store_list_state.dart';
-import 'package:logger/web.dart';
 
 class StoreListBloc extends Bloc<StoreListEvent, StoreListState> {
   List<StoreEntity> stores = [];
-  final Logger _logger;
 
   final ImportStoreUsecase _importStoreUsecase;
   final SearchStoresUsecase _searchStoresUsecase;
-  StoreListBloc(
-    this._logger,
-    this._importStoreUsecase,
-    this._searchStoresUsecase,
-  ) : super(const StoreListInitial()) {
+  StoreListBloc(this._importStoreUsecase, this._searchStoresUsecase)
+    : super(const StoreListInitial()) {
     on<ImportAllStoresEvent>(_importStores);
     on<SearchStoresEvent>(_searchStores);
     on<ClearSearchEvent>(_clearSearch);

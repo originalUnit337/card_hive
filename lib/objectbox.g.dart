@@ -155,25 +155,23 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (CardModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        final labelOffset = object.label == null
-            ? null
-            : fbb.writeString(object.label!);
+        final labelOffset =
+            object.label == null ? null : fbb.writeString(object.label!);
         final numberOffset = fbb.writeString(object.number);
-        final logoPathOffset = object.logoPath == null
-            ? null
-            : fbb.writeString(object.logoPath!);
-        final noteOffset = object.note == null
-            ? null
-            : fbb.writeString(object.note!);
-        final frontPathOffset = object.frontPath == null
-            ? null
-            : fbb.writeString(object.frontPath!);
-        final backPathOffset = object.backPath == null
-            ? null
-            : fbb.writeString(object.backPath!);
-        final rawBarcodeSvgOffset = object.rawBarcodeSvg == null
-            ? null
-            : fbb.writeString(object.rawBarcodeSvg!);
+        final logoPathOffset =
+            object.logoPath == null ? null : fbb.writeString(object.logoPath!);
+        final noteOffset =
+            object.note == null ? null : fbb.writeString(object.note!);
+        final frontPathOffset =
+            object.frontPath == null
+                ? null
+                : fbb.writeString(object.frontPath!);
+        final backPathOffset =
+            object.backPath == null ? null : fbb.writeString(object.backPath!);
+        final rawBarcodeSvgOffset =
+            object.rawBarcodeSvg == null
+                ? null
+                : fbb.writeString(object.rawBarcodeSvg!);
         fbb.startTable(12);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);

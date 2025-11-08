@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class AppTransitions {
-  static CustomTransitionPage getTransitionPage(Widget child) {
-    return CustomTransitionPage(
+  static CustomTransitionPage<void> getTransitionPage(Widget child) {
+    return CustomTransitionPage<void>(
       child: child,
       transitionDuration: const Duration(milliseconds: 200),
       reverseTransitionDuration: const Duration(milliseconds: 200),

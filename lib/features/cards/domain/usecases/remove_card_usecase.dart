@@ -6,7 +6,7 @@ class RemoveCardUsecase implements UseCase<DataState<bool>, int> {
   final CardRepository _cardRepository;
 
   RemoveCardUsecase(this._cardRepository);
-  
+
   @override
   Future<DataState<bool>> call({required int params}) {
     return _cardRepository.remove(params);

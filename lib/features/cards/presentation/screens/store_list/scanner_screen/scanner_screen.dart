@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:barcode/barcode.dart';
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
@@ -7,12 +5,9 @@ import 'package:card_hive/features/cards/domain/entities/store_entity.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' as ms;
-import 'package:path_provider/path_provider.dart';
 
 class ScannerScreen extends StatefulWidget {
   final StoreEntity? store;
@@ -47,7 +42,7 @@ class _ScannerScreenState extends State<ScannerScreen>
 
   void _startCamera() {
     try {
-      dynamic status = chan.invokeMethod('checkPermission', {
+      final dynamic status = chan.invokeMethod('checkPermission', {
         'permission': 'android.permission.CAMERA',
       });
       if (status == 'denied') {
@@ -56,7 +51,7 @@ class _ScannerScreenState extends State<ScannerScreen>
         _cameraController.start();
         setState(() => _hasCameraAccess = true);
       }
-    } catch (e) {
+    } on Exception catch (_) {
       setState(() => _hasCameraAccess = false);
     }
   }
@@ -148,52 +143,6 @@ class _ScannerScreenState extends State<ScannerScreen>
         );
       }
     }
-  }
-
-  Future<String> _getSaveDir() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final saveDir = Directory('${dir.path}/barcodes');
-    // ignore: avoid_slow_async_io
-    if (await saveDir.exists()) await saveDir.create(recursive: true);
-    return saveDir.path;
-  }
-
-  Future<File> _saveXFile(XFile xfile) async {
-    final bytes = await xfile.readAsBytes();
-    final dir = await _getSaveDir();
-    final name = 'barcode_${DateTime.now().toIso8601String()}.jpg';
-    final file = File('$dir/$name');
-    return file.writeAsBytes(bytes, flush: true);
-  }
-
-  Future<void> _pickImageAndDecode() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
-    if (file == null) return;
-
-    setState(() => _isProcessing = true);
-    try {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image picked (decoding not implemented)'),
-          ),
-        );
-      }
-    } finally {
-      setState(() => _isProcessing = false);
-    }
-  }
-
-  Widget _buildSvgPicture(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.amber),
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-      ),
-      child: SvgPicture.string(_rawSvg!, height: 100),
-    );
   }
 
   @override

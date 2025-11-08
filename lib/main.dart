@@ -22,25 +22,14 @@ void main() async {
         BlocProvider.value(value: homeBloc),
         BlocProvider.value(value: cardInfoBloc),
       ],
-      child: MainApp(
-        homeBloc: homeBloc,
-        cardInfoBloc: cardInfoBloc,
-        config: config,
-      ),
+      child: MainApp(config: config),
     ),
   );
 }
 
 class MainApp extends StatelessWidget {
-  final HomeBloc homeBloc;
-  final CardInfoBloc cardInfoBloc;
   final GoRouter config;
-  const MainApp({
-    required this.homeBloc,
-    required this.cardInfoBloc,
-    required this.config,
-    super.key,
-  });
+  const MainApp({required this.config, super.key});
 
   @override
   Widget build(BuildContext context) {
