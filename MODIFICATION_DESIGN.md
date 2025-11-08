@@ -1,26 +1,29 @@
-
 # Google Drive Backup and Restore Feature
 
 ## Overview
 
-This document outlines the design for a new feature in the Card Hive application that allows users to back up and restore their loyalty card data to and from Google Drive. This will provide users with a way to safeguard their data and transfer it between devices.
+This document outlines the design for a new feature in the Card Hive application that allows users to back up and restore their loyalty card data to and from Google Drive. This will provide users with a way to safeguard their data and transfer it between devices. This design also includes displaying the last backup time to the user.
 
 ## Detailed Analysis
 
 ### Problem
 
-Currently, all user card data is stored locally in an ObjectBox database on the device. This means that if the user uninstalls the application, loses their device, or has a device malfunction, all their stored card information is permanently lost. There is no mechanism for data recovery or synchronization between devices.
+Currently, all user card data is stored locally in an ObjectBox database on the device. This means that if the user uninstalls the application, loses their device, or has a device malfunction, all their stored card information is permanently lost. There is no mechanism for data recovery or synchronization between devices. Users also have no visibility into when their last backup was performed.
 
 ### Goal
 
-The goal is to implement a manual backup and restore feature using Google Drive. This will give users control over their data and a simple way to protect it.
+The goal is to implement a manual backup and restore feature using Google Drive. This will give users control over their data and a simple way to protect it. The user will also be able to see when their last backup was performed.
 
 ### Requirements
 
 Based on our discussion, the feature must meet the following requirements:
 
-*   **Manual Trigger:** The backup and restore processes will be initiated manually by the user.
-*   **UI Location:** A button to access the feature will be located in the app bar of the home page.
+*   **Manual Trigger:** The backup and restore processes will be initiated manually by the user from a dialog.
+*   **UI Location:** A button to access the feature will be located in the app bar of the home page. Tapping this button will open a dialog.
+*   **Dialog Content:** The dialog will contain:
+    *   A "Make a backup" button.
+    *   A "Restore from Google Drive" button.
+    *   A display of the last backup time, retrieved from Google Drive. If no backup exists, it will indicate that.
 *   **Restore Options:** When restoring data, the user will be presented with an option to either:
     *   **Merge:** Combine the restored cards with the existing local cards (default option).
     *   **Replace:** Delete all local cards before adding the restored cards.
@@ -61,11 +64,13 @@ graph TD
     end
     subgraph Domain Layer
         B -- Calls --> C[BackupUseCase];
-        C -- Calls --> D[RestoreUseCase];
+        B -- Calls --> D[RestoreUseCase];
+        B -- Calls --> I[GetLastBackupTimeUseCase];
     end
     subgraph Data Layer
         C -- Calls --> E[BackupRepository];
         D -- Calls --> E;
+        I -- Calls --> E;
         E -- Interacts with --> F[GoogleDriveDataSource];
         E -- Interacts with --> G[CardLocalDataSource];
     end
@@ -73,17 +78,18 @@ graph TD
         F -- API Calls --> H[Google Drive API];
     end
 
-    A -- "Displays Backup/Restore options" --> A
+    A -- "Displays Backup/Restore dialog" --> A
     B -- "Manages backup/restore state" --> B
     C -- "Orchestrates backup" --> C
     D -- "Orchestrates restore" --> D
+    I -- "Gets last backup time" --> I
     E -- "Abstracts data sources" --> E
     F -- "Handles Google Drive communication" --> F
     G -- "Handles ObjectBox communication" --> G
 ```
 
 *   **`BackupBloc` (`presentation`):** Manages the state of the backup and restore UI and handles user events.
-*   **`BackupUseCase` / `RestoreUseCase` (`domain`):** Contain the business logic for backing up and restoring data.
+*   **`BackupUseCase` / `RestoreUseCase` / `GetLastBackupTimeUseCase` (`domain`):** Contain the business logic for backing up, restoring, and getting the last backup time.
 *   **`BackupRepository` (`domain`):** An abstract interface for the backup and restore data operations.
 *   **`BackupRepositoryImpl` (`data`):** The implementation of the `BackupRepository`, which will coordinate between the `GoogleDriveDataSource` and the `CardLocalDataSource` (ObjectBox).
 *   **`GoogleDriveDataSource` (`data`):** A new data source responsible for all communication with the Google Drive API.
@@ -113,6 +119,10 @@ graph TD
     2.  If found, get the file ID.
     3.  Use the `files.get` method with the `alt=media` parameter to download the file content.
     4.  If not found, show an error to the user.
+*   **Get Last Backup Time Flow:**
+    1.  Search for `card_hive_backup.json` in the user's Google Drive.
+    2.  If found, get the file's `modifiedTime` metadata.
+    3.  If not found, return a null or equivalent value to indicate no backup exists.
 
 ### 4. Data Handling
 
@@ -133,23 +143,29 @@ graph TD
 sequenceDiagram
     participant User
     participant HomePage
+    participant BackupDialog
     participant BackupBloc
     participant GoogleDriveDataSource
     participant CardLocalDataSource
 
     User->>HomePage: Taps Google Drive icon
-    HomePage->>HomePage: Shows "Backup" / "Restore" menu
-    User->>HomePage: Selects "Backup"
-    HomePage->>BackupBloc: Add BackupEvent
+    HomePage->>BackupBloc: Add GetLastBackupTimeEvent
+    BackupBloc->>GoogleDriveDataSource: Get backup file metadata
+    GoogleDriveDataSource-->>BackupBloc: Returns metadata (or not found)
+    BackupBloc->>HomePage: Show BackupDialog with last backup time
+    
+    User->>BackupDialog: Selects "Make a backup"
+    BackupDialog->>BackupBloc: Add BackupEvent
     BackupBloc->>CardLocalDataSource: Get all cards
     CardLocalDataSource-->>BackupBloc: Returns cards
     BackupBloc->>BackupBloc: Serializes cards to JSON
     BackupBloc->>GoogleDriveDataSource: Upload backup file
     GoogleDriveDataSource-->>BackupBloc: Upload success/failure
-    BackupBloc->>HomePage: Show success/error message
+    BackupBloc->>BackupDialog: Show success/error message
+    BackupBloc->>BackupDialog: Update last backup time
 
-    User->>HomePage: Selects "Restore"
-    HomePage->>HomePage: Shows "Merge" / "Replace" dialog
+    User->>BackupDialog: Selects "Restore from Google Drive"
+    BackupDialog->>HomePage: Shows "Merge" / "Replace" dialog
     User->>HomePage: Selects option
     HomePage->>BackupBloc: Add RestoreEvent with option
     BackupBloc->>GoogleDriveDataSource: Download backup file
@@ -157,7 +173,7 @@ sequenceDiagram
     BackupBloc->>BackupBloc: Deserializes JSON to cards
     BackupBloc->>CardLocalDataSource: Restore cards (merge/replace)
     CardLocalDataSource-->>BackupBloc: Restore success/failure
-    BackupBloc->>HomePage: Show success/error message
+    BackupBloc->>BackupDialog: Show success/error message
 ```
 
 ### 6. State Management
@@ -168,11 +184,12 @@ The `BackupBloc` will manage the following states:
 *   `BackupInProgress`: When a backup or restore operation is in progress. The UI will show a loading indicator.
 *   `BackupSuccess`: When an operation completes successfully. The UI will show a success message.
 *   `BackupFailure`: When an operation fails. The UI will show an error message with the reason for the failure.
+*   `BackupInfoReady`: When the last backup time is available, this state will hold the information to be displayed in the dialog.
 *   `RestoreOptionRequired`: When the user initiates a restore, this state will trigger the UI to show the merge/replace dialog.
 
 ## Summary
 
-The proposed design introduces a robust and secure way for users to back up and restore their data using Google Drive. By following the existing Clean Architecture pattern, the new feature will be well-integrated, maintainable, and testable. The use of `google_sign_in` and `googleapis` packages will ensure a standard and reliable integration with Google's services.
+The proposed design introduces a robust and secure way for users to back up and restore their data using Google Drive. By following the existing Clean Architecture pattern, the new feature will be well-integrated, maintainable, and testable. The use of `google_sign_in` and `googleapis` packages will ensure a standard and reliable integration with Google's services. The addition of the last backup time provides users with more visibility and confidence in their data protection.
 
 ## References
 
