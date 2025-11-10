@@ -18,6 +18,7 @@ class BackupAuthBridgeImpl implements BackupAuthBridge {
     final cached = await _secureStorage.read(key: _kTokenKey);
     if (cached != null) return cached;
 
+
     try {
       final account = await _googleSignIn.attemptLightweightAuthentication();
       if (account == null) return null;
