@@ -1,5 +1,7 @@
+import 'package:card_hive/core/resources/data_state.dart';
+
 abstract class BackupRepository {
-  Future<void> backup();
-  Future<void> restore();
-  Future<DateTime?> getLastBackupTime();
+  Future<DataState<void>> backup();
+  Future<DataState<void>> restore();
+  Future<DataState<DateTime?>> getLastBackupTime();
 }

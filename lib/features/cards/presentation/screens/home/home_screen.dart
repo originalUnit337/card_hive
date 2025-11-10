@@ -2,6 +2,9 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:card_hive/core/ui_kit/palette/app_palette.dart';
+import 'package:card_hive/features/backup/presentation/bloc/backup_bloc.dart';
+import 'package:card_hive/features/backup/presentation/bloc/backup_event.dart';
+import 'package:card_hive/features/backup/presentation/bloc/backup_state.dart';
 import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
@@ -24,6 +27,58 @@ class HomeScreen extends StatelessWidget {
         //backgroundColor: appPalette.appBarbackground,
         title: const Text('Cards'),
         actions: [
+          // backup button
+          BlocConsumer<BackupBloc, BackupState>(
+            listener: (context, state) {
+              if (state is BackupSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Backup successful')),
+                );
+              } else if (state is BackupFailure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Backup failed: ${state.exception}')),
+                );
+              } else if (state is BackupNeedInteractiveSignIn) {
+                // interactive sign-in must be started from user gesture -> show dialog/perform interactive sign-in immediately
+                // we dispatch InteractiveSignIn which calls authBridge.authenticate() in data layer (it must be called in gesture context)
+                context.read<BackupBloc>().add(
+                  BackupInteractiveSignIn(),
+                );
+              }
+            },
+            builder: (context, state) {
+              final isLoading = state is BackupLoading;
+              return IconButton(
+                onPressed:
+                    isLoading
+                        ? null
+                        : () {
+                          // onPressed is a user gesture -> safe to call authenticate inside bloc via authBridge
+                          context.read<BackupBloc>().add(BackupTry());
+                        },
+                icon:
+                    isLoading
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: appPalette.primary,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 4, right: 4),
+                            child: Icon(
+                              Icons.cloud_upload,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+              );
+            },
+          ),
           IconButton(
             onPressed: () => context.push(AppRoutes.storeList.path),
             icon: DecoratedBox(
