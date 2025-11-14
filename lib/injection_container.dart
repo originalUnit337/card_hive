@@ -5,6 +5,7 @@ import 'package:card_hive/features/backup/data/repository/backup_repository_impl
 import 'package:card_hive/features/backup/domain/repositories/backup_repository.dart';
 import 'package:card_hive/features/backup/domain/repositories/drive_remote_repository.dart';
 import 'package:card_hive/features/backup/domain/usecases/backup_usecase.dart';
+import 'package:card_hive/features/backup/domain/usecases/restore_usecase.dart';
 import 'package:card_hive/features/backup/presentation/bloc/backup_bloc.dart';
 import 'package:card_hive/features/cards/data/datasources/assets_store_service.dart';
 import 'package:card_hive/features/cards/data/datasources/cards_service.dart';
@@ -41,15 +42,24 @@ Future<void> _initBackUpFeature() async {
 
   final googleAuth = BackupAuthBridgeImpl(getIt());
   await googleAuth.initialize(
-      serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID']);
-  getIt..registerSingleton<BackupAuthBridge>(googleAuth)
-
-  ..registerSingleton<DriveRemoteRepository>(DriveRemoteService())
+    serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
+  );
+  getIt
+    ..registerSingleton<BackupAuthBridge>(googleAuth)
+    ..registerSingleton<DriveRemoteRepository>(DriveRemoteService())
     //..registerLazySingleton<BackupRepository>(DriveBackupRepository(getIt(), getIt()))
-    ..registerLazySingleton<BackupRepository>(() => BackupRepositoryImpl(getIt(), getIt()))
+    ..registerLazySingleton<BackupRepository>(
+      () => BackupRepositoryImpl(getIt(), getIt()),
+    )
     ..registerLazySingleton<BackupUseCase>(() => BackupUseCase(getIt()))
+    ..registerLazySingleton<RestoreUseCase>(() => RestoreUseCase(getIt()))
     ..registerFactory(
-        () => BackupBloc(authBridge: getIt(), backupUseCase: getIt()));
+      () => BackupBloc(
+        authBridge: getIt(),
+        backupUseCase: getIt(),
+        restoreUseCase: getIt(),
+      ),
+    );
 }
 
 Future<void> _initServices() async {

@@ -16,6 +16,33 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
+void _showBackupDialog(BuildContext context, List<CardEntity> cards) {
+  showDialog(
+    context: context,
+    builder:
+        (_) => AlertDialog(
+          title: const Text('Backup'),
+          content: Column(
+            children: [
+              const Text(r'Last time backup: ${placeholder}}'),
+              ListTile(
+                title: const Text('Backup'),
+                onTap: () {
+                  context.read<BackupBloc>().add(BackupTry(cards));
+                },
+              ),
+              ListTile(
+                title: const Text('Restore'),
+                onTap: () {
+                  context.read<BackupBloc>().add(BackupRestore());
+                },
+              ),
+            ],
+          ),
+        ),
+  );
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -42,40 +69,54 @@ class HomeScreen extends StatelessWidget {
                 // interactive sign-in must be started from user gesture -> show dialog/perform interactive sign-in immediately
                 // we dispatch InteractiveSignIn which calls authBridge.authenticate() in data layer (it must be called in gesture context)
                 context.read<BackupBloc>().add(
-                  BackupInteractiveSignIn(),
+                  BackupInteractiveSignIn(cards: state.cards),
                 );
               }
             },
             builder: (context, state) {
               final isLoading = state is BackupLoading;
-              return IconButton(
-                onPressed:
-                    isLoading
-                        ? null
-                        : () {
-                          // onPressed is a user gesture -> safe to call authenticate inside bloc via authBridge
-                          context.read<BackupBloc>().add(BackupTry());
-                        },
-                icon:
-                    isLoading
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: appPalette.primary,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 4, right: 4),
-                            child: Icon(
-                              Icons.cloud_upload,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+              return BlocBuilder<HomeBloc, HomeState>(
+                builder:
+                    (context, state) =>
+                        state is HomeLoaded
+                            ? IconButton(
+                              onPressed:
+                                  isLoading
+                                      ? null
+                                      : () {
+                                        // onPressed is a user gesture -> safe to call authenticate inside bloc via authBridge
+                                        // context.read<BackupBloc>().add(BackupTry());
+                                        _showBackupDialog(context, state.cards);
+                                      },
+                              icon:
+                                  isLoading
+                                      ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          color: appPalette.primary,
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.only(
+                                            left: 4,
+                                            right: 4,
+                                          ),
+                                          child: Icon(
+                                            Icons.cloud_upload,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                            )
+                            : const CircularProgressIndicator(),
               );
             },
           ),

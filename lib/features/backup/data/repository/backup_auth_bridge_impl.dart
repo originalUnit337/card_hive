@@ -11,26 +11,32 @@ class BackupAuthBridgeImpl implements BackupAuthBridge {
   BackupAuthBridgeImpl(this._secureStorage);
 
   Future<void> initialize({String? clientId, String? serverClientId}) =>
-      _googleSignIn.initialize(clientId: clientId, serverClientId: serverClientId);
+      _googleSignIn.initialize(
+        clientId: clientId,
+        serverClientId: serverClientId,
+      );
 
   @override
   Future<String?> getAccessTokenSilently() async {
     final cached = await _secureStorage.read(key: _kTokenKey);
-    if (cached != null) return cached;
-
+    //if (cached != null) return cached;
 
     try {
       final account = await _googleSignIn.attemptLightweightAuthentication();
       if (account == null) return null;
-      final googleAuthorization = await account.authorizationClient.authorizeScopes(
-        //TODO: Change to .../drive.appdata
-        const ['https://www.googleapis.com/auth/drive.file'],
-      );
-      final token = googleAuthorization?.accessToken;
-      if (token != null) await _secureStorage.write(key: _kTokenKey, value: token);
+      final googleAuthorization = await account.authorizationClient
+          .authorizeScopes(const [
+            'https://www.googleapis.com/auth/drive.appdata',
+          ]);
+      final token = googleAuthorization.accessToken;
+      await _secureStorage.write(key: _kTokenKey, value: token);
       return token;
     } catch (e, st) {
-      Logger().e('ERROR geting access token silently: ', error: e, stackTrace: st);
+      Logger().e(
+        'ERROR geting access token silently: ',
+        error: e,
+        stackTrace: st,
+      );
     }
     return null;
   }
@@ -39,20 +45,15 @@ class BackupAuthBridgeImpl implements BackupAuthBridge {
   Future<bool> interactiveSignIn() async {
     try {
       final account = await _googleSignIn.authenticate(
-        scopeHint: const ['https://www.googleapis.com/auth/drive.file'],
+        scopeHint: const ['https://www.googleapis.com/auth/drive.appdata'],
       );
-      if (account == null) {
-        return false;
-      }
-      final googleAuthorization = await account.authorizationClient.authorizeScopes(
-        const ['https://www.googleapis.com/auth/drive.file'],
-      );
-      final token = googleAuthorization?.accessToken;
-      if (token != null) {
-        await _secureStorage.write(key: _kTokenKey, value: token);
-        return true;
-      }
-      return false;
+      final googleAuthorization = await account.authorizationClient
+          .authorizeScopes(const [
+            'https://www.googleapis.com/auth/drive.appdata',
+          ]);
+      final token = googleAuthorization.accessToken;
+      await _secureStorage.write(key: _kTokenKey, value: token);
+      return true;
     } catch (e, st) {
       Logger().e('ERROR interactive sign in: ', error: e, stackTrace: st);
       return false;

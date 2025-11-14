@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:card_hive/core/resources/data_state.dart';
 import 'package:card_hive/features/backup/data/bridge/backup_auth_bridge.dart';
 import 'package:card_hive/features/backup/domain/repositories/backup_repository.dart';
 import 'package:card_hive/features/backup/domain/repositories/drive_remote_repository.dart';
+import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:logger/logger.dart'; // Import Logger
 
 class BackupRepositoryImpl implements BackupRepository {
@@ -12,7 +15,7 @@ class BackupRepositoryImpl implements BackupRepository {
   BackupRepositoryImpl(this._driveRemoteRepository, this._googleAuthDatasource);
 
   @override
-  Future<DataState<void>> backup() async {
+  Future<DataState<void>> backup(List<CardEntity> cards) async {
     try {
       final accessToken = await _googleAuthDatasource.getAccessTokenSilently();
       if (accessToken == null) {
@@ -20,10 +23,9 @@ class BackupRepositoryImpl implements BackupRepository {
         return DataFailed(Exception('Access token not available.'));
       }
 
-      // TODO: Get actual data to backup (e.g., from ObjectBox)
-      final List<int> dataToBackup = []; // Placeholder for actual data
-      const String fileName =
-          'card_hive_backup.json'; // Placeholder for file name
+      final jsonString = jsonEncode(cards.map((e) => e.toJson()).toList());
+      final List<int> dataToBackup = utf8.encode(jsonString);
+      const fileName = 'card_hive_backup.json'; // Placeholder for file name
 
       await _driveRemoteRepository.uploadBackup(
         accessToken,
@@ -46,8 +48,7 @@ class BackupRepositoryImpl implements BackupRepository {
         return DataFailed(Exception('Access token not available.'));
       }
 
-      const String fileName =
-          'card_hive_backup.json'; // Placeholder for file name
+      const fileName = 'card_hive_backup.json'; // Placeholder for file name
       final fileId = await _driveRemoteRepository.findBackupFileId(
         accessToken,
         fileName,
@@ -77,8 +78,7 @@ class BackupRepositoryImpl implements BackupRepository {
         return DataFailed(Exception('Access token not available.'));
       }
 
-      const String fileName =
-          'card_hive_backup.json'; // Placeholder for file name
+      const fileName = 'card_hive_backup.json'; // Placeholder for file name
       final fileId = await _driveRemoteRepository.findBackupFileId(
         accessToken,
         fileName,
@@ -93,6 +93,13 @@ class BackupRepositoryImpl implements BackupRepository {
         accessToken,
         fileId,
       );
+      final jsonString = utf8.decode(backupData);
+      final jsonList = jsonDecode(jsonString) as List<dynamic>;
+      final cards =
+          jsonList
+              .map((e) => CardEntity.fromJson(e as Map<String, dynamic>))
+              .toList();
+
       // TODO: Implement actual restoration logic with backupData
       _logger.i(
         'Backup data downloaded successfully. Size: ${backupData.length} bytes',

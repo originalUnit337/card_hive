@@ -17,7 +17,11 @@ void main() async {
   await initializeDependencies();
   final homeBloc = HomeBloc(getIt(), getIt())..add(const GetAllCardsEvent());
   final cardInfoBloc = CardInfoBloc(getIt(), getIt());
-  final backupBloc = BackupBloc(authBridge: getIt(), backupUseCase: getIt());
+  final backupBloc = BackupBloc(
+    authBridge: getIt(),
+    backupUseCase: getIt(),
+    restoreUseCase: getIt(),
+  );
   final config = AppRouter(Logger(), homeBloc, cardInfoBloc).router;
 
   runApp(

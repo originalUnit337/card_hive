@@ -1,18 +1,26 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:card_hive/core/resources/data_state.dart';
 import 'package:card_hive/features/backup/data/bridge/backup_auth_bridge.dart';
 import 'package:card_hive/features/backup/domain/usecases/backup_usecase.dart';
+import 'package:card_hive/features/backup/domain/usecases/restore_usecase.dart';
 import 'package:card_hive/features/backup/presentation/bloc/backup_event.dart';
 import 'package:card_hive/features/backup/presentation/bloc/backup_state.dart';
-
 
 class BackupBloc extends Bloc<BackupEvent, BackupState> {
   final BackupAuthBridge authBridge;
   final BackupUseCase backupUseCase;
+  final RestoreUseCase restoreUseCase;
 
-  BackupBloc({required this.authBridge, required this.backupUseCase}) : super(BackupInitial()) {
+  BackupBloc({
+    required this.authBridge,
+    required this.backupUseCase,
+    required this.restoreUseCase,
+  }) : super(BackupInitial()) {
     on<BackupInit>(_onInit);
     on<BackupTry>(_onTryBackup);
+    on<BackupRestore>(_onBackupRestore);
     on<BackupInteractiveSignIn>(_onInteractiveSignIn);
     on<BackupSignOut>(_onSignOut);
   }
@@ -31,10 +39,10 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     emit(BackupLoading());
     final token = await authBridge.getAccessTokenSilently();
     if (token == null) {
-      emit(BackupNeedInteractiveSignIn());
+      emit(BackupNeedInteractiveSignIn(e.cards));
       return;
     }
-    final result = await backupUseCase.call();
+    final result = await backupUseCase.call(params: e.cards);
     if (result is DataSuccess) {
       emit(BackupSuccess());
     } else {
@@ -42,7 +50,23 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     }
   }
 
-  Future<void> _onInteractiveSignIn(BackupInteractiveSignIn e, Emitter<BackupState> emit) async {
+  FutureOr<void> _onBackupRestore(
+    BackupRestore event,
+    Emitter<BackupState> emit,
+  ) async {
+    emit(BackupLoading());
+    final result = await restoreUseCase.call();
+    if (result is DataSuccess) {
+      emit(BackupSuccess());
+    } else {
+      emit(BackupFailure((result as DataFailed).exception));
+    }
+  }
+
+  Future<void> _onInteractiveSignIn(
+    BackupInteractiveSignIn e,
+    Emitter<BackupState> emit,
+  ) async {
     emit(BackupLoading());
     final ok = await authBridge.interactiveSignIn(); // called from user gesture
     if (!ok) {
@@ -56,7 +80,7 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     }
     // после успешного входа можно запустить бэкап автоматически или ждать явного события
     if (e.runBackupAfterSignIn) {
-      add(BackupTry());
+      add(BackupTry(e.cards));
     } else {
       emit(BackupSignedIn());
     }

@@ -9,9 +9,11 @@ class BackupViewModel extends ChangeNotifier {
   BackupViewModel(this.authBridge);
 
   Future<void> init() async {
-    loading = true; notifyListeners();
+    loading = true;
+    notifyListeners();
     token = await authBridge.getAccessTokenSilently();
-    loading = false; notifyListeners();
+    loading = false;
+    notifyListeners();
   }
 
   Future<bool> ensureSignedIn() async {

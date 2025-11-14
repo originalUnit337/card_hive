@@ -47,7 +47,7 @@ class DriveRemoteService implements DriveRemoteRepository {
       // Find existing backup file
       final existingFileId = await findBackupFileId(accessToken, fileName);
 
-      final drive.File fileMetadata = drive.File();
+      final fileMetadata = drive.File();
       fileMetadata.name = fileName;
       fileMetadata.parents = ['appDataFolder']; // Store in app-specific folder
 
@@ -92,8 +92,8 @@ class DriveRemoteService implements DriveRemoteRepository {
               )
               as drive.Media;
 
-      final List<int> data = [];
-      await for (var chunk in mediaFile.stream) {
+      final data = <int>[];
+      await for (final chunk in mediaFile.stream) {
         data.addAll(chunk);
       }
       _logger.i(

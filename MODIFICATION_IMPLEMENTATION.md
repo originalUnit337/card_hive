@@ -8,6 +8,7 @@ This document outlines the phased implementation plan for adding the Google Driv
 *   **Phase 1:** Ran `analyze_files` and found several issues, including `strict_raw_type`, `unused_element`, `avoid_catches_without_on_clauses`, and `unused_field`. Fixed all the issues and verified with `analyze_files` again. All tests passed after the fixes.
 *   **Phase 2:** Created the domain layer for the backup feature, including the `BackupRepository` interface and the `BackupUseCase`, `RestoreUseCase`, and `GetLastBackupTimeUseCase`.
 *   **Phase 3:** Implemented `BackupRepositoryImpl` using existing `DriveRemoteDatasource` and `GoogleAuthDatasource`.
+*   **Phase 2 & 3:** Wrote unit tests for the domain and data layers. This included tests for `BackupRepositoryImpl`, `BackupUseCase`, `RestoreUseCase`, and `GetLastBackupTimeUseCase`. Added `mockito` for mocking dependencies. Modified `CardEntity` to be `JsonSerializable` to allow for testing the backup and restore of card data. All tests passed.
 
 ## Phase 1: Project Setup and Initial Tests
 
@@ -31,7 +32,7 @@ This document outlines the phased implementation plan for adding the Google Driv
 - [x] Create the `BackupUseCase` in `lib/features/backup/domain/usecases/backup_usecase.dart`.
 - [x] Create the `RestoreUseCase` in `lib/features/backup/domain/usecases/restore_usecase.dart`.
 - [x] Create the `GetLastBackupTimeUseCase` in `lib/features/backup/domain/usecases/get_last_backup_time_usecase.dart`.
-- [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
+- [x] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
 - [ ] Run the `dart_fix` tool to clean up the code.
 - [ ] Run the `analyze_files` tool one more time and fix any issues.
 - [ ] Run any tests to make sure they all pass.
@@ -46,7 +47,7 @@ This document outlines the phased implementation plan for adding the Google Driv
 
 - [x] Create the `GoogleDriveDataSource` in `lib/features/backup/data/datasources/google_drive_data_source.dart`.
 - [x] Implement the `BackupRepositoryImpl` in `lib/features/backup/data/repositories/backup_repository_impl.dart`.
-- [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
+- [x] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
 - [ ] Run the `dart_fix` tool to clean up the code.
 - [ ] Run the `analyze_files` tool one more time and fix any issues.
 - [ ] Run any tests to make sure they all pass.
