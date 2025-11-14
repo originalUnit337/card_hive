@@ -9,6 +9,7 @@ import 'package:card_hive/features/cards/domain/entities/card_entity.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_bloc.dart';
 import 'package:card_hive/features/cards/presentation/screens/card_info/bloc/card_info_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_bloc.dart';
+import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_event.dart';
 import 'package:card_hive/features/cards/presentation/screens/home/bloc/home_state.dart';
 import 'package:card_hive/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ void _showBackupDialog(BuildContext context, List<CardEntity> cards) {
         (_) => AlertDialog(
           title: const Text('Backup'),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Text(r'Last time backup: ${placeholder}}'),
               ListTile(
@@ -71,6 +73,9 @@ class HomeScreen extends StatelessWidget {
                 context.read<BackupBloc>().add(
                   BackupInteractiveSignIn(cards: state.cards),
                 );
+              }
+              if (state is RestoreSuccess) {
+                context.read<HomeBloc>().add(UpdateCardsEvent(state.cards));
               }
             },
             builder: (context, state) {

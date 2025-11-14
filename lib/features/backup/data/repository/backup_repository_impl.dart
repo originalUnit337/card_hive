@@ -33,7 +33,7 @@ class BackupRepositoryImpl implements BackupRepository {
         dataToBackup,
       );
       return const DataSuccess(null);
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       _logger.e('Error during backup: $e', error: e, stackTrace: st);
       return DataFailed(Exception('Failed to backup data: $e'));
     }
@@ -63,14 +63,14 @@ class BackupRepositoryImpl implements BackupRepository {
         fileId,
       );
       return DataSuccess(lastModified);
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       _logger.e('Error getting last backup time: $e', error: e, stackTrace: st);
       return DataFailed(Exception('Failed to get last backup time: $e'));
     }
   }
 
   @override
-  Future<DataState<void>> restore() async {
+  Future<DataState<List<CardEntity>>> restore() async {
     try {
       final accessToken = await _googleAuthDatasource.getAccessTokenSilently();
       if (accessToken == null) {
@@ -102,10 +102,10 @@ class BackupRepositoryImpl implements BackupRepository {
 
       // TODO: Implement actual restoration logic with backupData
       _logger.i(
-        'Backup data downloaded successfully. Size: ${backupData.length} bytes',
+        'Backup data downloaded successfully. Size: ${backupData.length} bytes\n Restored cards: ${cards.length}',
       );
-      return const DataSuccess(null);
-    } catch (e, st) {
+      return DataSuccess(cards);
+    } on Exception catch (e, st) {
       _logger.e('Error during restore: $e', error: e, stackTrace: st);
       return DataFailed(Exception('Failed to restore data: $e'));
     }

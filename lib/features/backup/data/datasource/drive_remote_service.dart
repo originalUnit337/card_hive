@@ -47,9 +47,10 @@ class DriveRemoteService implements DriveRemoteRepository {
       // Find existing backup file
       final existingFileId = await findBackupFileId(accessToken, fileName);
 
-      final fileMetadata = drive.File();
-      fileMetadata.name = fileName;
-      fileMetadata.parents = ['appDataFolder']; // Store in app-specific folder
+      final fileMetadata =
+          drive.File()
+            ..name = fileName
+            ..parents = ['appDataFolder']; // Store in app-specific folder
 
       final media = drive.Media(
         Stream.fromIterable([bytes]),
@@ -58,11 +59,13 @@ class DriveRemoteService implements DriveRemoteRepository {
       );
 
       if (existingFileId != null) {
+        fileMetadata.parents = null;
         // Update existing file
         await driveApi.files.update(
           fileMetadata,
           existingFileId,
           uploadMedia: media,
+          addParents: 'appDataFolder',
         );
         _logger.i('Backup file updated successfully: $fileName');
       } else {
@@ -118,8 +121,8 @@ class DriveRemoteService implements DriveRemoteRepository {
       final fileList = await driveApi.files.list(
         q: "name = '$fileName' and 'appDataFolder' in parents",
         $fields: 'files(id, name)',
+        spaces: 'appDataFolder',
       );
-
       return fileList.files?.firstWhere((file) => file.name == fileName).id;
     } catch (e, st) {
       _logger.e('Error finding backup file ID: $e', error: e, stackTrace: st);

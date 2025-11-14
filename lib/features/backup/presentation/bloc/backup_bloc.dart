@@ -57,7 +57,7 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     emit(BackupLoading());
     final result = await restoreUseCase.call();
     if (result is DataSuccess) {
-      emit(BackupSuccess());
+      emit(RestoreSuccess(result.data ?? []));
     } else {
       emit(BackupFailure((result as DataFailed).exception));
     }

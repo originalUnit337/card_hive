@@ -16,6 +16,11 @@ class BackupSignedIn extends BackupState {}
 
 class BackupSuccess extends BackupState {}
 
+class RestoreSuccess extends BackupState {
+  final List<CardEntity> cards;
+  RestoreSuccess(this.cards);
+}
+
 class BackupFailure extends BackupState {
   final Exception? exception;
   BackupFailure(this.exception);
