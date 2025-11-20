@@ -75,6 +75,9 @@ class HomeScreen extends StatelessWidget {
                 );
               }
               if (state is RestoreSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Restore successful')),
+                );
                 context.read<HomeBloc>().add(UpdateCardsEvent(state.cards));
               }
             },

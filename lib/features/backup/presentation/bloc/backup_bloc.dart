@@ -55,6 +55,16 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     Emitter<BackupState> emit,
   ) async {
     emit(BackupLoading());
+    var token = await authBridge.getAccessTokenSilently();
+    if (token == null) {
+      final ok =
+          await authBridge.interactiveSignIn(); // called from user gesture
+      if (!ok) {
+        emit(BackupSignedOut());
+        return;
+      }
+      token = await authBridge.getAccessTokenSilently();
+    }
     final result = await restoreUseCase.call();
     if (result is DataSuccess) {
       emit(RestoreSuccess(result.data ?? []));
