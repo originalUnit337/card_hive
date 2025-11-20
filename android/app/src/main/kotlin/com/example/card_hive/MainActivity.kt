@@ -1,4 +1,4 @@
-package com.example.card_hive
+package com.unit337.card_hive
 
 import android.content.Intent
 import android.content.pm.PackageManager

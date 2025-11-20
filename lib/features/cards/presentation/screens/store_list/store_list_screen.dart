@@ -13,7 +13,7 @@ class StoreListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => StoreListBloc(getIt(), getIt(), getIt()),
+      create: (context) => StoreListBloc(getIt(), getIt()),
       child: BlocBuilder<StoreListBloc, StoreListState>(
         builder: (context, state) {
           return Scaffold(

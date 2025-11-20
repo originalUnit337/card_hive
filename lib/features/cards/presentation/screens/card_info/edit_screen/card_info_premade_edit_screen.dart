@@ -112,7 +112,47 @@ class _CardInfoPremadeEditScreenState extends State<CardInfoPremadeEditScreen> {
                             child: const Text('Save'),
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text(
+                                      'Are you sure you want to delete this card ?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          context.pop();
+                                        },
+                                        child: const Text('CANCEL'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          context.read<CardInfoBloc>().add(
+                                            RemoveCardEvent(widget.card.id),
+                                          );
+                                          final cards =
+                                              context.read<HomeBloc>().cards
+                                                ..removeWhere(
+                                                  (item) =>
+                                                      item.id == widget.card.id,
+                                                );
+                                          context.read<HomeBloc>().add(
+                                            UpdateCardsEvent(cards),
+                                          );
+                                          context
+                                            ..pop()
+                                            ..pop()
+                                            ..pop();
+                                        },
+                                        child: const Text('DELETE CARD'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                             child: const Row(
                               spacing: 10,
                               mainAxisAlignment: MainAxisAlignment.center,

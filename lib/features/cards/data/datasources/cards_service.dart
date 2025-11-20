@@ -53,17 +53,17 @@ class CardsService {
     // }
     // q.close();
     final query = box.query().build();
-  try {
-    // initial
-    yield await query.findAsync();
-
-    // subsequent updates
-    await for (final _ in query.stream()) {
+    try {
+      // initial
       yield await query.findAsync();
+
+      // subsequent updates
+      await for (final _ in query.stream()) {
+        yield await query.findAsync();
+      }
+    } finally {
+      query.close();
     }
-  } finally {
-    query.close();
-  }
   }
 
   Stream<CardModel?> watchById(int id) async* {

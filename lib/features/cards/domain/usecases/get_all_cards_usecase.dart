@@ -7,9 +7,9 @@ class GetAllCardsUsecase extends UseCase<DataState<List<CardEntity>>, void> {
   final CardRepository _cardRepository;
 
   GetAllCardsUsecase(this._cardRepository);
-  
+
   @override
   Future<DataState<List<CardEntity>>> call({void params}) {
     return _cardRepository.getAll();
-  }  
+  }
 }

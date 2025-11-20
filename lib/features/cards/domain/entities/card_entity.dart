@@ -1,6 +1,12 @@
 import 'dart:ui';
 
-class CardEntity {
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'card_entity.g.dart';
+
+@JsonSerializable()
+class CardEntity extends Equatable {
   int id;
   String name;
   String? label;
@@ -10,6 +16,7 @@ class CardEntity {
   String? backPath;
   String? frontPath;
   String? note;
+  @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   Color color;
 
   CardEntity({
@@ -24,6 +31,25 @@ class CardEntity {
     this.frontPath,
     this.note,
   });
+
+  factory CardEntity.fromJson(Map<String, dynamic> json) =>
+      _$CardEntityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CardEntityToJson(this);
+
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        label,
+        number,
+        logoPath,
+        rawBarcodeSvg,
+        backPath,
+        frontPath,
+        note,
+        color,
+      ];
 
   CardEntity copyWith({
     int? id,
@@ -52,3 +78,7 @@ class CardEntity {
     );
   }
 }
+
+int _colorToJson(Color color) => color.value;
+
+Color _colorFromJson(int value) => Color(value);

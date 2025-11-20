@@ -12,12 +12,8 @@ class StoreRepositoryImpl implements StoreRepositry {
     try {
       final result = await _assetsStoreService.loadAll();
       return DataSuccess(result);
-    } catch (e) {
-      if (e is Exception) {
-        return DataFailed(e);
-      } else {
-        return DataFailed(Exception(e));
-      }
+    } on Exception catch (e) {
+      return DataFailed(e);
     }
   }
 
@@ -26,12 +22,8 @@ class StoreRepositoryImpl implements StoreRepositry {
     try {
       final result = await _assetsStoreService.search(query);
       return DataSuccess(result);
-    } catch (e) {
-      if (e is Exception) {
-        return DataFailed(e);
-      } else {
-        return DataFailed(Exception(e));
-      }
+    } on Exception catch (e) {
+      return DataFailed(e);
     }
   }
 }
